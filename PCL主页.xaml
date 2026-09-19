@@ -1,0 +1,158 @@
+<!-- ============================================================
+     PCL 自定义主页 —— 由时长服务自动维护
+     · 「游戏时长」卡片 与「今日运势 · 每日一言」卡片的内容 由服务自动更新，请勿手改；
+     · 其它卡片（欢迎语、寄语、网址、复制指令）想改直接改这里即可。
+     · 布局：横幅(整行) → 左:游戏时长 ｜ 右:我的寄语 + 今日运势(两张叠放)
+              → 一键复制指令(整行) → 常用网址(整行在最下)
+     · 提醒：PCL 本地主页模式实际读的是 桌面\PCL\Custom.xaml，
+       服务会把本文件原样镜像过去；两处保持一致。
+     ============================================================ -->
+
+<!-- ==================== 欢迎横幅 ==================== -->
+<local:MyCard Title="主页" Margin="0,0,0,15">
+    <StackPanel Margin="25,40,23,15">
+        <TextBlock FontSize="26" FontWeight="Bold" Foreground="{DynamicResource ColorBrush1}"
+                   Text="欢迎回来！" />
+        <TextBlock FontSize="14" Foreground="{DynamicResource ColorBrush2}" Margin="0,8,0,0" TextWrapping="Wrap"
+                   Text="这里是属于你的 Minecraft 小窝，点击下方板块开始探索吧。" />
+    </StackPanel>
+</local:MyCard>
+
+<!-- ==================== 上排：游戏时长 |（我的寄语 ＋ 今日运势） ==================== -->
+<Grid Margin="0,0,0,15">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- ==================== 游戏时长 ==================== -->
+<!-- ===== 以下为本地服务实时生成的「游戏时长」卡片，请勿手改 ===== -->
+<local:MyCard Grid.Column="0" Grid.Row="0" Title="游戏时长" Margin="0,0,8,0">
+    <StackPanel Margin="25,40,23,15">
+        <TextBlock FontSize="22" FontWeight="Bold" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource ColorBrush1}" Text="总累计：1382 小时 59 分" />
+        <StackPanel Margin="14,10,14,0">
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Foreground="{DynamicResource ColorBrush3}" Text="疑块迷体1.19.2：879 小时 48 分（不计入总榜）" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="永恒的影子1.17：325 小时 17 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="100种死法1.21.50：192 小时 37 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="1.21.5：192 小时 37 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="1.21.10：192 小时 37 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="幸运方块樱花赛道（Lucky World Invasion2.7.2）：99 小时 51 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="乌托邦探险之旅3.5fix：55 小时 28 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Foreground="{DynamicResource ColorBrush3}" Text="备份：49 小时 26 分（不计入总榜）" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="1.21.1-Forge_52.1.8：49 小时 26 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="The Legend of Tinker：48 小时 4 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Foreground="{DynamicResource ColorBrush3}" Text="The Legend of Tinker 备份：48 小时 4 分（不计入总榜）" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="落幕曲：45 小时 43 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="脆骨症：40 小时 1 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="终末幸存者：36 小时 24 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="找按钮1.21.1：27 小时 2 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="1.21.1-Fabric 0.18.1：19 小时 2 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="海岛寿司店v1.1：15 小时 20 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="PoopSky 2：6 小时 44 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="ArdaCraft：9 分 48 秒" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="Better MC [FORGE] BMC4：1 分 14 秒" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="灾变：2 分 10 秒" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Foreground="{DynamicResource ColorBrush3}" Text="乌托邦探险之旅3.5fix：3 分 11 秒（不计入总榜）" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="Immersive Fight 4.2.7：36 小时 22 分" />
+            <TextBlock FontSize="14" HorizontalAlignment="Center" Margin="0,3,0,3" Text="dd26.2：20 秒" />
+        </StackPanel>
+        <TextBlock FontSize="11" Foreground="{DynamicResource ColorBrush4}" HorizontalAlignment="Center" Margin="0,12,0,0"
+                   TextWrapping="Wrap" Text="自动计时已开启，等待进游戏" />
+        <local:MyButton Margin="0,14,0,0" Height="35" HorizontalAlignment="Center" Padding="20,0,20,0"
+                        Text="一键启动服务" EventType="打开文件" EventData="请先运行 一键安装.cmd"
+                        ToolTip="后台静默启动时长服务，不用自己打开 cmd。若已在运行则无影响" />
+        <local:MyButton Margin="0,8,0,0" Height="35" HorizontalAlignment="Center" Padding="20,0,20,0"
+                        Text="打开手动计时面板" EventType="打开网页" EventData="http://127.0.0.1:8137/"
+                        ToolTip="打开计时面板：可手动开始/结束、加减时长、管理整合包" />
+    </StackPanel>
+</local:MyCard>
+
+    <!-- 右列：我的寄语 与 今日运势·每日一言 两张卡片上下叠放 -->
+    <StackPanel Grid.Column="1" Grid.Row="0" Margin="8,0,0,0">
+        <local:MyCard Title="我的寄语" Margin="0,0,0,12">
+            <StackPanel Margin="25,40,23,15">
+                <TextBlock TextWrapping="Wrap" FontSize="15" HorizontalAlignment="Center" Margin="0,0,0,10"
+                           Text="「开心就现在笑，不开心就晚点笑。」" />
+                <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource ColorBrush3}" HorizontalAlignment="Center"
+                           Text="—— 写下你自己喜欢的话" />
+            </StackPanel>
+        </local:MyCard>
+
+        <local:MyCard Title="今日运势 · 每日一言" Margin="0,0,0,0">
+            <StackPanel Margin="25,30,23,15">
+                <!-- ==================== 今日运势 · 每日一言 ==================== -->
+<TextBlock FontSize="42" FontWeight="Bold" Foreground="{DynamicResource ColorBrush1}" HorizontalAlignment="Center" Text="吉" />
+<TextBlock FontSize="14" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,0" Text="今日运势 小吉" />
+<Grid Margin="0,12,0,0">
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+        <TextBlock Text="宜" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource ColorBrush3}" Margin="0,0,0,6" />
+        <TextBlock FontSize="13" HorizontalAlignment="Center" Margin="0,2,0,2" Text="去末地" />
+        <TextBlock FontSize="13" HorizontalAlignment="Center" Margin="0,2,0,2" Text="挖矿" />
+    </StackPanel>
+    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+        <TextBlock Text="忌" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource ColorBrush4}" Margin="0,0,0,6" />
+        <TextBlock FontSize="13" HorizontalAlignment="Center" Margin="0,2,0,2" Text="掉进虚空" />
+        <TextBlock FontSize="13" HorizontalAlignment="Center" Margin="0,2,0,2" Text="用 TNT 炸自家" />
+    </StackPanel>
+</Grid>
+<TextBlock FontSize="12" Foreground="{DynamicResource ColorBrush4}" HorizontalAlignment="Center" Margin="0,12,0,0" TextWrapping="Wrap"
+           Text="「今天也把日子过成一张新地图，去探索就好。」" />
+<!-- ===== 以上为自动生成，请勿手改 ===== -->
+            </StackPanel>
+        </local:MyCard>
+    </StackPanel>
+</Grid>
+
+<!-- ==================== 一键复制指令 ==================== -->
+<local:MyCard Title="一键复制指令" Margin="0,0,0,15">
+    <StackPanel Margin="25,40,23,15">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <local:MyButton Margin="0,0,10,0" Width="160" Height="35" Padding="13,0,13,0"
+                            Text="灵魂出窍" EventType="复制文本" EventData="/gamemode spectator"
+                            ToolTip="复制：切换到旁观模式（灵魂出窍）" />
+            <local:MyButton Margin="0,0,10,0" Width="160" Height="35" Padding="13,0,13,0"
+                            Text="死亡不掉落" EventType="复制文本" EventData="/gamerule keepInventory true"
+                            ToolTip="复制：开启死亡不掉落" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <local:MyButton Margin="0,0,10,0" Width="160" Height="35" Padding="13,0,13,0"
+                            Text="关闭友伤" EventType="复制文本" EventData="/team modify [队伍名] friendlyFire false"
+                            ToolTip="复制：关闭队伍友伤（需先用 /team add 创建队伍）" />
+            <local:MyButton Margin="0,0,10,0" Width="160" Height="35" Padding="13,0,13,0"
+                            Text="回到出生点" EventType="复制文本" EventData="/spawn"
+                            ToolTip="复制：传送到出生点" />
+        </StackPanel>
+    </StackPanel>
+</local:MyCard>
+
+<!-- ==================== 常用网址 ==================== -->
+<local:MyCard Title="常用网址" Margin="0,0,0,0">
+    <StackPanel Margin="25,40,23,15">
+        <local:MyListItem Margin="-5,2,-5,8" Logo="pack://application:,,,/images/Blocks/Grass.png"
+                          Title="苦力怕论坛" Info="国内 Minecraft 中文社区"
+                          EventType="打开网页" EventData="https://klpbbs.com/" Type="Clickable" />
+        <local:MyListItem Margin="-5,2,-5,8" Logo="pack://application:,,,/images/Blocks/Cobblestone.png"
+                          Title="MineBBS" Info="Minecraft 论坛与资源"
+                          EventType="打开网页" EventData="https://www.minebbs.com/" Type="Clickable" />
+        <local:MyListItem Margin="-5,2,-5,8" Logo="pack://application:,,,/images/Blocks/GoldBlock.png"
+                          Title="MC百科" Info="模组与百科资料查询"
+                          EventType="打开网页" EventData="https://www.mcmod.cn/" Type="Clickable" />
+        <local:MyListItem Margin="-5,2,-5,8" Logo="pack://application:,,,/images/Blocks/Anvil.png"
+                          Title="LittleSkin 皮肤站" Info="国内 Minecraft 皮肤库"
+                          EventType="打开网页" EventData="https://littleskin.cn/" Type="Clickable" />
+        <local:MyListItem Margin="-5,2,-5,8" Logo="pack://application:,,,/images/Blocks/CommandBlock.png"
+                          Title="中文 Minecraft Wiki" Info="官方中文百科"
+                          EventType="打开网页" EventData="https://zh.minecraft.wiki/" Type="Clickable" />
+        <local:MyListItem Margin="-5,2,-5,8" Logo="pack://application:,,,/images/Blocks/RedstoneBlock.png"
+                          Title="网易我的世界" Info="国服官方网站"
+                          EventType="打开网页" EventData="https://mc.163.com/" Type="Clickable" />
+        <local:MyListItem Margin="-5,2,-5,8" Logo="pack://application:,,,/images/Blocks/Egg.png"
+                          Title="投影工坊" Info="Litematica 投影文件分享站"
+                          EventType="打开网页" EventData="https://www.mcimg.com/" Type="Clickable" />
+    </StackPanel>
+</local:MyCard>

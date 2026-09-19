@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>我的 MC 游戏时长</title>
+<style>
+  :root{
+    color-scheme: dark;
+    --plane:#0a0e18;
+    --surface:rgba(255,255,255,.045);
+    --surface2:rgba(255,255,255,.07);
+    --ink:#eef2f7;
+    --ink2:#c3ccd9;
+    --muted:#8792a6;
+    --accent:#44c7d6;
+    --accent2:#7fe0ac;
+    --good:#36d189;
+    --warn:#f0a35f;
+    --bad:#e2625b;
+    --hair:rgba(255,255,255,.09);
+    --glass-a1:.085;
+    --glass-a2:.028;
+    --glass:linear-gradient(160deg,rgba(255,255,255,var(--glass-a1)),rgba(255,255,255,var(--glass-a2)));
+    --glass-br:rgba(255,255,255,.11);
+  }
+  *{box-sizing:border-box;}
+  html,body{min-height:100%;}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    color:var(--ink);
+    padding:22px 16px 72px;
+    font-size:14px;
+    line-height:1.5;
+    background:
+      radial-gradient(1100px 760px at 14% -10%, rgba(68,199,214,.22), transparent 58%),
+      radial-gradient(950px 680px at 106% 6%, rgba(127,224,172,.16), transparent 55%),
+      radial-gradient(1000px 900px at 50% 116%, rgba(96,124,232,.16), transparent 62%),
+      var(--plane);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:640px;margin:0 auto;position:relative;z-index:2;}
+
+  .conn{display:none;background:rgba(208,59,59,.14);border:1px solid var(--bad);color:var(--ink);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13px;}
+  .conn.show{display:block;}
+  .noteok{background:rgba(12,163,12,.12);border:1px solid var(--good);border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--ink);display:none;}
+  .noteok.show{display:block;}
+
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  h1{font-size:18px;font-weight:600;margin:0;}
+  .mini{display:flex;gap:8px;}
+  .mini button{background:var(--surface);color:var(--ink2);border:1px solid var(--hair);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;}
+  .mini button:hover{color:var(--ink);}
+
+  .hero{margin-top:16px;background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:22px;text-align:center;}
+  .hero .label{color:var(--ink2);font-size:13px;}
+  .hero .num{font-size:46px;font-weight:700;margin:6px 0 2px;font-variant-numeric:tabular-nums;letter-spacing:1px;}
+  .hero .sub{color:var(--muted);font-size:12px;min-height:16px;}
+  .hero .sub .on{color:var(--good);}
+
+  .auto{margin-top:14px;background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:14px 16px;display:none;align-items:center;gap:12px;flex-wrap:wrap;}
+  .auto.show{display:flex;}
+  .auto .sw{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600;}
+  .auto input[type=checkbox]{width:17px;height:17px;accent-color:var(--good);}
+  .auto select{background:var(--plane);color:var(--ink);border:1px solid var(--hair);border-radius:8px;padding:6px 8px;font-size:13px;max-width:180px;}
+  .astat{margin-left:auto;color:var(--ink2);font-size:12px;}
+  .astat .run{color:var(--good);}
+  .astat .wait{color:var(--warn);}
+
+  .warn{margin-top:14px;background:rgba(208,59,59,.12);border:1px solid var(--bad);color:var(--ink);border-radius:12px;padding:14px 16px;display:none;font-size:13px;line-height:1.7;}
+  .warn.show{display:block;}
+  .warn b{color:#ffb3a7;}
+  .warn .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .warn button{border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;}
+  .warn button.keep{background:var(--good);color:#001a00;border-color:transparent;}
+  .warn button.discard{color:#ffb3a7;}
+
+  .addbar{display:flex;gap:8px;margin-top:14px;}
+  .addbar input{flex:1;background:var(--surface);border:1px solid var(--hair);color:var(--ink);border-radius:10px;padding:10px 12px;outline:none;font-size:14px;}
+  .addbar input:focus{border-color:var(--accent);}
+  .addbar button{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:0 18px;cursor:pointer;font-size:14px;font-weight:600;}
+
+  .mods{margin-top:14px;display:flex;flex-direction:column;gap:12px;}
+  .modcard{background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:16px;}
+  .mhead{display:flex;align-items:center;gap:10px;}
+  .mname{font-size:15px;font-weight:600;flex:1;cursor:pointer;border-bottom:1px dashed transparent;}
+  .mname:hover{border-bottom-color:var(--muted);}
+  .mname .tag{font-size:11px;color:var(--muted);font-weight:400;}
+  .dot{color:var(--good);display:none;font-size:12px;font-weight:700;}
+  .modcard.playing .dot{display:inline;}
+  .mdel{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:4px;}
+  .mdel:hover{color:var(--bad);}
+  .mtotal{font-size:30px;font-weight:700;margin:10px 0 2px;font-variant-numeric:tabular-nums;}
+  .mlive{color:var(--ink2);font-size:13px;min-height:18px;margin-bottom:8px;}
+  .modcard.playing .mlive{color:var(--good);}
+  .mbtns{display:flex;gap:8px;flex-wrap:wrap;}
+  .mbtns button{border:1px solid var(--hair);background:rgba(255,255,255,.03);color:var(--ink);border-radius:9px;padding:8px 14px;cursor:pointer;font-size:13px;}
+  .mbtns button:hover{border-color:var(--ink2);}
+  .mbtns button.go{background:var(--good);border-color:transparent;color:#001a00;font-weight:700;}
+  .mbtns button.stop{background:var(--bad);border-color:transparent;color:#fff;font-weight:700;}
+  .adj{margin-top:10px;border-top:1px solid var(--hair);padding-top:10px;display:none;}
+  .adj.show{display:block;}
+  .adj .cap{color:var(--muted);font-size:12px;margin-bottom:8px;}
+  .adj .chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .adj .chips button{background:var(--plane);border:1px solid var(--hair);color:var(--ink2);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:12px;}
+  .adj .chips button:hover{color:var(--ink);}
+  .adj .chips button.minus{color:#ffb3a7;}
+
+  .days{margin-top:16px;background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:18px;}
+  .days h2{font-size:14px;font-weight:600;margin:0 0 14px;color:var(--ink);}
+  .day{display:flex;align-items:center;gap:12px;margin-bottom:11px;}
+  .day .dt{width:56px;font-size:13px;color:var(--ink2);flex-shrink:0;}
+  .day .track{flex:1;height:8px;background:var(--hair);border-radius:999px;overflow:hidden;}
+  .day .fill{height:100%;background:var(--accent);border-radius:999px;}
+  .day .dv{width:96px;text-align:right;font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .empty{color:var(--muted);font-size:13px;}
+
+  /* ---- 游玩日历 ---- */
+  .calhead{display:flex;align-items:center;gap:6px;margin:2px 0 4px;}
+  .calhead button{background:var(--plane);border:1px solid var(--hair);color:var(--ink2);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1;}
+  .calhead button:hover{color:var(--ink);border-color:var(--ink2);}
+  .calhead button:disabled{opacity:.35;cursor:default;border-color:var(--hair);color:var(--ink2);}
+  .calhead .title{flex:1;text-align:center;font-size:15px;font-weight:600;}
+  .calhead .today{width:auto;font-size:12px;padding:0 9px;color:var(--ink2);}
+  .calstat{color:var(--muted);font-size:12px;margin:0 0 10px;text-align:center;min-height:15px;}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .calwd{text-align:center;color:var(--muted);font-size:11px;padding:2px 0 4px;}
+  .calcell{position:relative;background:var(--plane);border:1px solid transparent;border-radius:9px;min-height:50px;padding:6px 5px;cursor:pointer;display:flex;flex-direction:column;gap:3px;}
+  .calcell:hover{border-color:var(--ink2);}
+  .calcell .cn{font-size:12px;color:var(--ink);line-height:1;}
+  .calcell .cn.dim{color:var(--muted);}
+  .calcell .ct{font-size:10px;color:#cfe2f8;font-variant-numeric:tabular-nums;line-height:1;margin-top:auto;}
+  .calcell .cnote{position:absolute;top:4px;right:5px;font-size:9px;color:#ffd479;line-height:1;}
+  .calcell.today{border-color:var(--good);}
+  .calcell.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+  .calcell.blank{cursor:default;}
+  .calcell.blank:hover{border-color:transparent;}
+  .calcell.future{opacity:.35;cursor:default;}
+  .calcell.future:hover{border-color:transparent;}
+  .caldetail{display:none;margin-top:12px;border-top:1px solid var(--hair);padding-top:12px;}
+  .caldetail.show{display:block;}
+  .caldetail .dhead{font-size:13px;color:var(--ink2);}
+  .caldetail .dhead b{color:var(--ink);}
+  .caldetail .dhead .t{color:var(--good);font-weight:600;}
+  .caldetail .dhint{color:var(--muted);font-size:12px;margin:7px 0 6px;}
+  .caldetail textarea{width:100%;height:64px;background:var(--plane);color:var(--ink);border:1px solid var(--hair);border-radius:9px;padding:8px 10px;font-size:13px;resize:vertical;outline:none;font-family:inherit;box-sizing:border-box;}
+  .caldetail textarea:focus{border-color:var(--accent);}
+  .caldetail .row{display:flex;gap:8px;margin-top:9px;align-items:center;flex-wrap:wrap;}
+  .caldetail .row button{border:1px solid var(--hair);background:var(--accent);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;}
+  .caldetail .row button.ghost{background:transparent;color:var(--ink2);font-weight:400;}
+  .caldetail .row button.del{background:transparent;color:#ffb3a7;border-color:transparent;font-weight:400;}
+  .caldetail .row .saved{color:var(--good);font-size:12px;}
+  .caldetail .dhead .ehT{color:#ffcf8f;}
+  .caldetail .dhead .eh{color:var(--muted);font-size:11px;}
+
+  /* 日历顶部：输入年月跳转 + 估算回填按钮 */
+  .caljumpbar{display:flex;align-items:center;gap:8px;margin:0 0 9px;flex-wrap:wrap;}
+  .caljumpbar .lb{color:var(--muted);font-size:12px;white-space:nowrap;}
+  .caljumpbar input{flex:0 1 120px;min-width:0;background:var(--plane);border:1px solid var(--hair);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px;outline:none;font-family:inherit;}
+  .caljumpbar input:focus{border-color:var(--accent);}
+  .caljumpbar button{background:var(--plane);border:1px solid var(--hair);color:var(--ink2);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;white-space:nowrap;}
+  .caljumpbar button:hover{color:var(--ink);border-color:var(--ink2);}
+  .caljumpbar button.est{color:#ffcf8f;border-color:rgba(255,207,143,.35);}
+  .caljumpbar button.est:hover{border-color:rgba(255,207,143,.8);}
+  .caljumpbar button:disabled{opacity:.5;cursor:default;}
+  .caljumpbar .grow{flex:1;}
+
+  /* 估算(约)与精确(蓝)区分：估算=琥珀色 */
+  .calcell .ct.est{color:#ffcf8f;}
+  .calstat .sreal{color:#cfe2f8;}
+  .calstat .sest{color:#ffcf8f;}
+  .callegend{display:flex;gap:14px;justify-content:center;align-items:center;color:var(--muted);font-size:11px;margin:8px 0 0;flex-wrap:wrap;}
+  .callegend .sw{display:inline-flex;align-items:center;gap:5px;}
+  .callegend .dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  .callegend .dot.blue{background:rgba(57,135,229,.65);}
+  .callegend .dot.amb{background:rgba(222,166,54,.75);}
+
+  /* 选中日期详情：精确时间段列表 + 估算说明 */
+  .calsegs{margin:7px 0 2px;border:1px solid var(--hair);border-radius:9px;background:var(--plane);overflow:hidden;}
+  .calsegs .segh{font-size:11px;color:var(--good);font-weight:600;padding:7px 10px 2px;}
+  .calseg{display:flex;align-items:baseline;gap:9px;padding:3px 10px;font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums;}
+  .calseg .segt{color:var(--ink);white-space:nowrap;}
+  .calseg .segn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .calseg .segs{color:var(--muted);white-space:nowrap;}
+  .estnote{color:#ffcf8f;font-size:12px;margin:8px 0 0;line-height:1.7;}
+  .estnote b{color:#ffcf8f;}
+  .estnote strong{color:#ffcf8f;}
+  .estnote.dim{color:var(--muted);}
+  .estnote.dim strong{color:var(--ink2);}
+
+  .foot{color:var(--muted);font-size:12px;line-height:1.8;margin-top:16px;}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:flex-start;justify-content:center;z-index:50;padding:40px 16px;overflow:auto;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--hair);border-radius:14px;max-width:620px;width:100%;padding:20px;}
+  .modal h3{margin:0 0 6px;font-size:16px;}
+  .modal .steps{color:var(--ink2);font-size:13px;line-height:1.7;margin:0 0 12px;}
+  .modal textarea{width:100%;height:220px;background:var(--plane);color:var(--ink);border:1px solid var(--hair);border-radius:10px;padding:10px;font-family:Consolas,Menlo,monospace;font-size:12px;resize:vertical;outline:none;}
+  .modal .row{display:flex;gap:8px;margin-top:12px;align-items:center;}
+  .modal .row button{border:1px solid var(--hair);background:var(--accent);color:#fff;border-radius:9px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600;}
+  .modal .row button.ghost{background:transparent;color:var(--ink2);}
+  #copyStatus{color:var(--good);font-size:12px;}
+  #jserr{display:none;position:fixed;top:8px;right:8px;left:8px;z-index:99;background:#3a1412;color:#ffb4a8;border:1px solid #ff6b5e;border-radius:10px;padding:10px 12px;font:12px/1.6 Consolas,Menlo,monospace;white-space:pre-wrap;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+  #jserr.show{display:block;}
+
+  /* ---- 背景图层（只作用于本网页面板） ---- */
+  #bgImg,#bgShade{position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;}
+  #bgImg{background-size:cover;background-position:center;background-repeat:no-repeat;z-index:0;}
+  #bgShade{z-index:1;}
+
+  /* ---- 面板外观：背景设置条 ---- */
+  .lookbar{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:10px 14px;margin-top:14px;}
+  .lookbar.show{display:flex;}
+  .lookbar .lbl{font-size:13px;font-weight:600;color:var(--ink2);}
+  .lookbar .lb{background:rgba(255,255,255,.04);border:1px solid var(--hair);color:var(--ink);border-radius:9px;padding:7px 12px;cursor:pointer;font-size:13px;}
+  .lookbar .lb:hover{border-color:var(--ink2);}
+  .lookbar .lb.danger{color:#ffb3a7;}
+  .lookbar .dims{display:none;align-items:center;gap:7px;margin-left:auto;color:var(--muted);font-size:12px;}
+  .lookbar .dims.show{display:flex;}
+  .lookbar input[type=range]{width:120px;accent-color:var(--accent);}
+  .lookbar .tip{width:100%;color:var(--muted);font-size:12px;line-height:1.6;}
+
+  /* ---- 整合包文件夹浏览 ---- */
+  .packsec{margin-top:14px;background:var(--surface);border:1px solid var(--hair);border-radius:14px;padding:16px 18px;display:none;}
+  .packsec.show{display:block;}
+  .packsec h2{font-size:14px;font-weight:600;margin:0 0 4px;}
+  .pshint{color:var(--muted);font-size:12px;margin:0 0 10px;line-height:1.7;}
+  .pshint b{color:var(--ink2);}
+  .pkrow{display:flex;gap:8px;}
+  .pkrow input{flex:1;background:var(--plane);border:1px solid var(--hair);color:var(--ink);border-radius:9px;padding:9px 11px;outline:none;font-size:12px;font-family:Consolas,"Microsoft YaHei",monospace;min-width:0;}
+  .pkrow input:focus{border-color:var(--accent);}
+  .pkrow button{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:0 16px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;}
+  .pkchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center;}
+  .pkchips .lab{width:100%;color:var(--muted);font-size:12px;}
+  .pkchips button{background:var(--plane);border:1px solid var(--hair);color:var(--ink2);border-radius:999px;padding:5px 11px;cursor:pointer;font-size:12px;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pkchips button:hover{color:var(--ink);border-color:var(--ink2);}
+  .pkload{color:var(--muted);font-size:12px;padding:2px 0;}
+  .pkr{border-top:1px dashed var(--hair);margin-top:12px;padding-top:12px;}
+  .pkr .pkname{font-size:16px;font-weight:700;}
+  .pkr .pkm{color:var(--muted);font-size:11px;margin-top:2px;word-break:break-all;}
+  .pkr .pkmeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;}
+  .pkr .pkmeta span{background:var(--plane);border:1px solid var(--hair);border-radius:7px;padding:4px 9px;font-size:12px;color:var(--ink2);}
+  .pkr .pkmeta span b{color:var(--ink);}
+  .pkr .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .pkr .tags span{font-size:11px;color:var(--muted);border:1px dashed var(--hair);border-radius:6px;padding:2px 8px;}
+  .pkr .pkwhen{display:flex;flex-direction:column;gap:8px;background:var(--plane);border:1px solid var(--hair);border-radius:9px;padding:9px 12px;margin-top:10px;font-size:13px;}
+  .pkr .pkwhen .pkw1{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .pkr .pkwhen b{color:var(--ink);}
+  .pkr .pkwhen .now b.t{color:var(--good);}
+  .pkr .pkwhen .rl{color:var(--good);font-weight:700;font-size:12px;}
+  .pkr .pkwhen .no{color:var(--muted);}
+  .pkr .pkwhen .pkw2{color:var(--muted);font-size:12px;line-height:1.6;}
+  .pkr .pkwhen .pkw2 b{color:var(--ink2);}
+  .pkr .pkwhen button{border:1px solid var(--hair);background:var(--good);border-color:transparent;color:#001a00;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:700;}
+  .pkr .pkwhen button.ghost{background:rgba(255,255,255,.05);border-color:var(--hair);color:var(--ink2);font-weight:400;}
+  .pklistwrap{margin-top:10px;}
+  .pkfilter{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+  .pkfilter input{flex:1;background:var(--plane);border:1px solid var(--hair);color:var(--ink);border-radius:8px;padding:6px 9px;font-size:12px;outline:none;min-width:0;}
+  .pkfilter span{color:var(--muted);font-size:11px;white-space:nowrap;}
+  .pklist{max-height:240px;overflow:auto;border:1px solid var(--hair);border-radius:9px;padding:4px 0;background:var(--plane);}
+  .pklist .row{display:flex;gap:8px;align-items:center;padding:3px 8px;font-size:12px;color:var(--ink2);}
+  .pklist .row:hover{background:rgba(255,255,255,.04);}
+  .pklist .row .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pklist .row .sz{color:var(--muted);font-size:11px;flex-shrink:0;}
+  .pkempty{color:var(--muted);font-size:12px;padding:8px 2px;}
+  .pkmore{color:var(--muted);font-size:11px;margin-top:5px;}
+  /* 自动扫描全盘找存档 */
+  .pkrow.scan{margin-top:9px;align-items:flex-start;}
+  .pkrow.scan button{background:rgba(255,255,255,.05);border:1px dashed var(--hair);color:#9ecbff;border-radius:9px;padding:8px 13px;font-size:12px;white-space:nowrap;cursor:pointer;}
+  .pkrow.scan button:hover{border-color:var(--accent);color:#fff;}
+  .pkrow.scan button:disabled{opacity:.6;cursor:default;}
+  .pkscanstat{color:var(--muted);font-size:12px;line-height:1.6;padding:7px 1px 0;}
+  .pkscanres{margin-top:2px;}
+  .scrow{display:flex;align-items:baseline;gap:10px;background:var(--plane);border:1px solid var(--hair);border-radius:9px;padding:7px 11px;margin-top:6px;cursor:pointer;font-size:12px;flex-wrap:wrap;}
+  .scrow:hover{border-color:var(--accent);}
+  .scrow .scn{color:var(--ink);font-weight:600;white-space:nowrap;}
+  .scrow .scs{color:var(--ink2);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .scrow .scm{color:var(--muted);font-family:Consolas,Menlo,monospace;flex-basis:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  /* 读取结果里的「把时长带进主榜」动作区 */
+  .rkacts{margin-top:11px;border:1px solid var(--hair);border-radius:10px;background:rgba(255,255,255,.03);padding:11px 13px;}
+  .rkacts .rkactcap{color:var(--ink2);font-size:12px;margin-bottom:8px;}
+  .rkactbtns{display:flex;gap:8px;flex-wrap:wrap;}
+  .rkactbtns button{background:var(--good);border:none;color:#001a00;border-radius:9px;padding:9px 14px;cursor:pointer;font-size:13px;font-weight:700;white-space:nowrap;}
+  .rkactbtns button:hover{filter:brightness(1.08);}
+  .rkactbtns button:disabled{opacity:.5;cursor:default;}
+  .rkactbtns button.alt{background:rgba(255,255,255,.06);border:1px solid var(--hair);color:var(--ink2);font-weight:400;}
+  .rkacts .rkdone,.rkacts .rkflash{color:var(--good);font-size:13px;line-height:1.8;}
+  .rkacts .rkdone b{color:var(--ink);}
+  /* 自动找到的整合包：每行带 计时累计 + 存档历史时长 */
+  .pkqlab{color:var(--muted);font-size:11px;margin:10px 0 0;}
+  .pkqwrap{max-height:280px;overflow:auto;border:1px solid var(--hair);border-radius:9px;background:var(--plane);margin-top:8px;}
+  .pkq{display:block;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid var(--hair);padding:7px 11px;cursor:pointer;color:var(--ink);}
+  .pkq:last-child{border-bottom:none;}
+  .pkq:hover{background:rgba(255,255,255,.05);}
+  .pkq .l1{display:flex;align-items:baseline;gap:8px;}
+  .pkq .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--ink2);font-weight:600;}
+  .pkq .chev{color:var(--muted);font-size:11px;flex-shrink:0;}
+  .pkq .l2{color:var(--muted);font-size:11px;margin-top:2px;line-height:1.6;}
+  .pkq .l2 b{color:var(--ink2);}
+  .pkq .l2 b.rn{color:var(--muted);font-weight:400;}
+  .pkq .l2 .run2{color:var(--good);}
+
+  /* ---- 页面分区顺序：总时间 → 各包时间 → 日历 → 读取文件内容 → 换背景 ---- */
+  .wrap{display:flex;flex-direction:column;}
+  #connBar{order:1;}#noteOk{order:2;}.wrap>.top{order:3;}.wrap>.hero{order:4;}
+  .wrap>.auto{order:5;}.wrap>.warn{order:6;}.wrap>.addbar{order:7;}#mods{order:8;}
+  .days{order:9;}.packsec{order:10;}.lookbar{order:11;}.wrap>.foot{order:12;}
+
+  /* ---- 各整合包游玩时间（主榜） ---- */
+  .boardh{font-size:13px;font-weight:600;color:var(--ink2);margin:0 0 2px;}
+  .boardh .s{color:var(--muted);font-weight:400;font-size:11px;}
+  .board{margin-top:8px;display:flex;flex-direction:column;gap:8px;}
+  .boardbar{display:flex;align-items:center;gap:8px;margin-top:4px;}
+  .boardbar .lab{color:var(--muted);font-size:12px;}
+  .boardbar select{background:var(--plane);border:1px solid var(--hair);color:var(--ink);border-radius:8px;padding:5px 8px;font-size:12px;outline:none;cursor:pointer;}
+  .boardbar select:focus{border-color:var(--accent);}
+  .brow{background:var(--surface);border:1px solid var(--hair);border-radius:13px;overflow:hidden;}
+  .brow.playing{border-color:var(--good);}
+  .brow.cur{border-color:var(--accent);}
+  .bh{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;user-select:none;}
+  .bh .nm{font-size:14px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bh .nm .tag{font-size:11px;color:var(--muted);font-weight:400;}
+  .bh .live{color:var(--good);font-size:12px;font-weight:700;flex-shrink:0;}
+  .bh .tm{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .bh .tm .gday{font-size:11.5px;font-weight:500;color:var(--muted);}
+  .bh .chev{color:var(--muted);font-size:11px;flex-shrink:0;width:52px;text-align:right;}
+  .bmeta{color:var(--muted);font-size:11px;padding:0 14px 9px;}
+  .bmeta b{color:var(--ink2);}
+  .brow.open .bmeta{display:none;}
+  .bopen{display:none;border-top:1px solid var(--hair);padding:10px 14px;}
+  .brow.open .bopen{display:block;}
+  .bbtns{display:flex;gap:8px;flex-wrap:wrap;}
+  .bbtns button{border:1px solid var(--hair);background:rgba(255,255,255,.03);color:var(--ink);border-radius:9px;padding:7px 12px;cursor:pointer;font-size:13px;}
+  .bbtns button:hover{border-color:var(--ink2);}
+  .bbtns button.go{background:var(--good);border-color:transparent;color:#001a00;font-weight:700;}
+  .bbtns button.stop{background:var(--bad);border-color:transparent;color:#fff;font-weight:700;}
+  .bbtns .isauto{color:var(--good);font-size:12px;font-weight:700;align-self:center;}
+  .badj{margin-top:9px;border-top:1px dashed var(--hair);padding-top:9px;display:none;}
+  .badj.show{display:block;}
+  .badj .c{color:var(--muted);font-size:11px;margin-bottom:6px;}
+  .badj .ch{display:flex;gap:6px;flex-wrap:wrap;}
+  .badj .ch button{background:var(--plane);border:1px solid var(--hair);color:var(--ink2);border-radius:7px;padding:4px 9px;font-size:12px;cursor:pointer;}
+  .badj .ch button:hover{color:var(--ink);}
+  .badj .ch button.minus{color:#ffb3a7;}
+
+  /* ---- 读取整合包文件夹：占用分布 + 各存档时长 ---- */
+  .pkr{border-top:1px dashed var(--hair);margin-top:12px;padding-top:12px;}
+  .rkname{font-size:16px;font-weight:700;}
+  .rkm{color:var(--muted);font-size:11px;margin-top:2px;word-break:break-all;}
+  .rkcap{color:var(--muted);font-size:12px;margin:14px 0 6px;font-weight:600;}
+  .rkstat{background:var(--plane);border:1px solid var(--hair);border-radius:9px;padding:9px 12px;font-size:13px;color:var(--ink2);}
+  .rkstat b{color:var(--good);font-size:15px;}
+  .rkrows{display:flex;flex-direction:column;gap:5px;}
+  .rkrow{display:flex;align-items:center;gap:10px;font-size:12px;}
+  .rkrow .n{width:34%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink2);}
+  .rkrow .bar{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;}
+  .rkrow .bar i{display:block;height:100%;background:var(--accent);border-radius:999px;}
+  .rkrow .v{width:64px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .rkempty{color:var(--muted);font-size:12px;padding:4px 0;}
+  .rkcap .tot{color:var(--ink);font-size:14px;}
+  .rkworlds{display:flex;flex-direction:column;gap:7px;}
+  .rkworld{background:var(--plane);border:1px solid var(--hair);border-radius:9px;padding:8px 11px;}
+  .rkworld .l1{display:flex;align-items:center;gap:8px;}
+  .rkworld .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--ink2);}
+  .rkworld .tm{color:var(--good);font-weight:700;font-size:13px;flex-shrink:0;}
+  .rkworld .l2{color:var(--muted);font-size:11px;margin-top:3px;}
+
+  /* ---- 左侧直达栏目：一键跳到各个板块 ---- */
+  .qnav{position:fixed;left:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:40;max-height:92vh;overflow:auto;}
+  .qnav .qn{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--hair);color:var(--ink2);border-radius:999px;padding:6px 12px 6px 9px;cursor:pointer;font-size:12px;line-height:1;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;transition:border-color .15s,color .15s,transform .1s,opacity .15s;}
+  .qnav .qn:hover{color:var(--ink);border-color:var(--ink2);transform:translateX(2px);}
+  .qnav .qn.on{color:#fff;border-color:var(--accent);}
+  .qnav .qn .ic{font-size:13px;}
+  @media (max-width:880px){ .qnav{display:none;} }
+
+  /* 主榜某行被设为「不计入总榜」：数字灰掉划线、名字旁标注；行仍保留可随时改回 */
+  .brow.no .tm{color:var(--muted);text-decoration:line-through;}
+  .brow.no .nm .tag.no{color:#ffd479;}
+  .bbtns button.cnt{color:#9ecbff;}
+  .bbtns button.cnt.off{color:var(--muted);}
+
+  /* 全盘扫描结果行里的一键加入总榜小按钮 */
+  .scrow .scadd{margin-left:auto;align-self:center;flex-shrink:0;background:var(--good);border:none;color:#001a00;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;}
+  .scrow .scadd:hover{filter:brightness(1.08);}
+  .scrow .scadd:disabled{background:rgba(255,255,255,.06);color:var(--muted);font-weight:400;cursor:default;filter:none;}
+
+  /* 主榜批量删除：行内勾选框 + 顶部工具条 */
+  .bh .sel{flex-shrink:0;width:24px;height:24px;border:1px solid var(--hair);background:var(--plane);color:var(--muted);border-radius:7px;cursor:pointer;font-size:13px;line-height:1;}
+  .bh .sel:hover{border-color:var(--ink2);color:var(--ink);}
+  .bh .sel.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .bh .sel:disabled{opacity:.3;cursor:default;border-color:var(--hair);}
+  .brow.sel{border-color:var(--accent);}
+  .bdelbar{display:none;align-items:center;gap:12px;margin-top:10px;background:rgba(57,135,229,.10);border:1px solid var(--accent);border-radius:10px;padding:8px 13px;font-size:13px;}
+  .bdelbar.show{display:flex;}
+  .bdelbar .cnt{color:var(--ink2);}
+  .bdelbar button{border:1px solid var(--hair);background:var(--surface);color:var(--ink2);border-radius:8px;padding:6px 13px;cursor:pointer;font-size:13px;}
+  .bdelbar button:hover{color:var(--ink);border-color:var(--ink2);}
+  .bdelbar button.del{background:var(--bad);border-color:transparent;color:#fff;font-weight:700;}
+  .bdelbar button:disabled{opacity:.5;cursor:default;}
+
+  /* ---- 主榜「文件夹」分组（标签式整理：一个包可进多个文件夹，不影响总累计） ---- */
+  .fbar{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .fbar button{background:var(--surface);border:1px dashed var(--hair);color:#9ecbff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;}
+  .fbar button:hover{border-color:var(--accent);color:#fff;}
+  .fbar .fhint{color:var(--muted);font-size:11px;line-height:1.6;}
+  .fsec{margin:0;}
+  .fhead{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--hair);border-radius:11px;padding:8px 12px;cursor:pointer;user-select:none;}
+  .fhead:hover{border-color:var(--ink2);}
+  .fhead .chev{width:14px;flex-shrink:0;color:var(--muted);font-size:12px;text-align:center;}
+  .fhead .fic{flex-shrink:0;font-size:13px;}
+  .fhead .fn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:600;}
+  .fhead .fc{flex-shrink:0;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;}
+  .fhead .fops{display:flex;gap:5px;flex-shrink:0;}
+  .fhead .fops button{border:1px solid var(--hair);background:rgba(255,255,255,.03);color:var(--muted);border-radius:6px;font-size:12px;cursor:pointer;padding:2px 8px;line-height:1.6;}
+  .fhead .fops button:hover{color:var(--ink);border-color:var(--ink2);}
+  .fhead .fops button.del:hover{color:#ffb3a7;border-color:rgba(255,107,94,.5);}
+  .fhead .fops button.fmv{width:22px;padding:2px 0;text-align:center;font-size:10px;line-height:1.5;}
+  .fbody{margin:8px 0 4px;padding-left:14px;border-left:2px solid var(--hair);display:flex;flex-direction:column;gap:8px;}
+  .fbody .empty{color:var(--muted);font-size:12px;padding:6px 2px;line-height:1.7;}
+  .fsec.ug .fhead{border-style:dashed;}
+
+  /* 自定义排序模式：每行出现的 ▲▼ 小按钮 */
+  .brow .bh .mv{display:none;width:24px;height:24px;flex-shrink:0;border:1px solid var(--hair);background:var(--plane);color:var(--muted);border-radius:6px;cursor:pointer;font-size:11px;line-height:1;padding:0;}
+  .brow .bh .mv:hover{color:#fff;border-color:var(--ink2);}
+  .brow.custom .bh .mv{display:inline-block;}
+
+  /* 「放进文件夹」弹层 */
+  .fpick{display:flex;flex-direction:column;gap:7px;margin:6px 0 4px;max-height:44vh;overflow:auto;}
+  .fpick label{display:flex;align-items:center;gap:9px;background:var(--plane);border:1px solid var(--hair);border-radius:9px;padding:8px 11px;cursor:pointer;font-size:14px;}
+  .fpick label:hover{border-color:var(--ink2);}
+  .fpick label input{width:17px;height:17px;accent-color:var(--accent);flex-shrink:0;}
+  .fpick label .cnt{color:var(--muted);margin-left:auto;font-size:12px;flex-shrink:0;}
+  .fpick .emp{color:var(--muted);font-size:12px;padding:2px;}
+  .fnew{display:flex;gap:8px;margin-top:10px;}
+  .fnew input{flex:1;background:var(--plane);border:1px solid var(--hair);color:var(--ink);border-radius:9px;padding:8px 11px;outline:none;font-size:13px;min-width:0;}
+  .fnew input:focus{border-color:var(--accent);}
+
+  /* ================= 主题润色：玻璃质感 + 更清晰的排版 ================= */
+  /* 去掉“实心黑框”：卡片改半透明玻璃 + 轻描边 + 柔和投影 */
+  .hero,.auto,.days,.packsec,.lookbar,.brow,.fhead,.qnav .qn{
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(16px) saturate(1.15);
+    backdrop-filter:blur(16px) saturate(1.15);
+    border:1px solid var(--glass-br);
+    box-shadow:0 10px 34px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.07);
+  }
+  .warn{background:linear-gradient(160deg,rgba(226,98,91,.16),rgba(226,98,91,.05));border-color:rgba(226,98,91,.42);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);}
+  .bdelbar{background:rgba(68,199,214,.10);border-color:rgba(68,199,214,.45);}
+  /* 顶部标题 + 英雄数字 */
+  .top{margin-bottom:2px;}
+  h1{font-size:20px;font-weight:700;letter-spacing:.3px;}
+  .hero{border-radius:18px;padding:24px 22px;}
+  .hero .label{color:var(--muted);font-size:12px;letter-spacing:.4px;}
+  .hero .num{
+    font-size:52px;font-weight:800;letter-spacing:2px;line-height:1.05;
+    background:linear-gradient(180deg,#ffffff,#b9e8ee);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero .sub{color:var(--muted);font-size:12.5px;line-height:1.6;margin-top:4px;}
+  .hero .numline{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .hero .gdays{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.4px;}
+  .boardh{font-size:14px;margin:2px 0 6px;}
+  .days h2,.packsec h2{font-size:15px;margin-bottom:12px;}
+  /* 主榜行更透气 */
+  .brow{border-radius:14px;}
+  .bh{padding:13px 14px;gap:11px;}
+  .bh .nm{font-size:14.5px;}
+  .bh .tm{font-size:19px;}
+  .bmeta{font-size:11.5px;line-height:1.55;}
+  .bbtns button{border-radius:8px;padding:7px 12px;}
+  /* 文件夹分组头 + 展开区 */
+  .fsec .fhead{border-radius:12px;padding:9px 12px;}
+  .fsec .fbody{margin:10px 0 6px;padding-left:16px;gap:9px;}
+  /* 按钮统一圆润 + 主操作强调 */
+  button{transition:transform .05s ease,border-color .15s ease,background .15s ease,color .15s ease,filter .15s ease;}
+  .addbar button,.pkrow button{background:linear-gradient(180deg,var(--accent),#2ba9bd);border-radius:11px;box-shadow:0 4px 14px rgba(68,199,214,.28);}
+  .addbar button:hover,.pkrow button:hover{filter:brightness(1.08);}
+  .mini button,.warn button{border-radius:9px;}
+  /* 左侧快捷栏更精致 */
+  .qnav .qn{background:rgba(16,21,36,.72);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-color:var(--glass-br);border-radius:10px;padding:7px 12px 7px 9px;box-shadow:0 4px 16px rgba(0,0,0,.35);}
+  .qnav .qn:hover{background:rgba(30,38,60,.82);}
+  .qnav .qn.on{background:rgba(68,199,214,.16);border-color:var(--accent);}
+  /* 日历格子更清晰 */
+  .calgrid{gap:5px;}
+  .calcell{background:rgba(255,255,255,.028);border-color:var(--glass-br);border-radius:10px;min-height:52px;}
+  .calcell.blank{background:transparent;border-color:transparent;}
+  /* 弹层 */
+  .overlay{background:rgba(4,6,12,.6);}
+  .modal{background:rgba(18,23,38,.88);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-color:var(--glass-br);border-radius:18px;}
+  /* 输入 / 选择控件统一样式（更柔和，不突兀） */
+  input,select,textarea{font-family:inherit;}
+  /* 下拉选择统一玻璃样式：去掉原生黑框/箭头，换自定义箭头 */
+  select{
+    -webkit-appearance:none;appearance:none;
+    background-color:rgba(10,14,24,.5);
+    border:1px solid var(--glass-br);
+    color:var(--ink);
+    border-radius:9px;
+    padding:7px 30px 7px 11px;
+    font-size:13px;outline:none;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12'><path d='M2.5 4.5L6 8l3.5-3.5' fill='none' stroke='%23aab6d0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center;background-size:12px;
+    transition:border-color .15s ease,background-color .15s ease;
+  }
+  select:hover{border-color:var(--ink2);}
+  select:focus{border-color:var(--accent);}
+  select option{background:#131926;color:var(--ink);}
+  #autoPack{min-width:190px;}
+  #boardSort{min-width:150px;}
+  .addbar input,.pkrow input,.pkfilter input,.fnew input,.caljumpbar input,.pkrow.scan button{background:rgba(10,14,24,.5);border-color:var(--glass-br);}
+  .fpick label{background:rgba(10,14,24,.5);border-color:var(--glass-br);}
+  .fpick label input{accent-color:var(--accent);}
+
+  /* ================= 个性化面板 ================= */
+  .lookbar{flex-direction:column;align-items:stretch;gap:16px;padding:18px;}
+  .lookbar .phead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .lookbar .phead .lbl{font-size:15px;}
+  .lookbar .phead-hint{color:var(--muted);font-size:11px;}
+  .pgroup{display:flex;flex-direction:column;gap:8px;}
+  .pgcap{font-size:12px;color:var(--muted);font-weight:600;}
+  .prow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .pv{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;font-family:Consolas,Menlo,monospace;}
+  .pdef{border:1px solid var(--hair);background:rgba(255,255,255,.03);color:var(--ink2);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;}
+  .pdef:hover{color:var(--ink);border-color:var(--ink2);}
+  input[type=color]{-webkit-appearance:none;appearance:none;width:46px;height:32px;border:1px solid var(--glass-br);border-radius:9px;background:rgba(10,14,24,.5);padding:3px;cursor:pointer;}
+  input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+  input[type=color]::-webkit-color-swatch{border:none;border-radius:6px;}
+  .seg{display:inline-flex;background:rgba(10,14,24,.5);border:1px solid var(--glass-br);border-radius:10px;padding:3px;gap:3px;}
+  .segbtn{border:1px solid transparent;background:transparent;color:var(--ink2);border-radius:8px;padding:6px 13px;cursor:pointer;font-size:12px;}
+  .segbtn:hover{color:var(--ink);}
+  .segbtn.on{background:rgba(68,199,214,.18);border-color:var(--accent);color:var(--ink);}
+  .lookbar input[type=range]{width:180px;}
+  /* 文件夹排序下拉 */
+  .fbar .fsort{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;margin-left:auto;}
+  .fbar .fsort select{font-size:12px;padding:5px 26px 5px 9px;}
+
+  /* ================= 自绘复选框：去掉原生黑框，勾与框严格对齐 ================= */
+  input[type=checkbox]{
+    -webkit-appearance:none;appearance:none;
+    width:18px;height:18px;flex-shrink:0;margin:0;
+    border:1.5px solid var(--ink2);border-radius:5px;
+    background:rgba(255,255,255,.03);cursor:pointer;position:relative;
+  }
+  input[type=checkbox]:hover{border-color:var(--ink);}
+  input[type=checkbox]:checked{background:var(--accent);border-color:var(--accent);}
+  input[type=checkbox]:checked::after{content:'';position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);}
+  /* 批量删除的勾选按钮：同样的自绘框 */
+  .bh .sel{width:18px;height:18px;flex-shrink:0;border:1.5px solid var(--ink2);background:rgba(255,255,255,.03);border-radius:5px;position:relative;padding:0;cursor:pointer;color:transparent;}
+  .bh .sel:hover{border-color:var(--ink);}
+  .bh .sel.on{background:var(--accent);border-color:var(--accent);}
+  .bh .sel.on::after{content:'';position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);}
+  .bh .sel:disabled{opacity:.3;cursor:default;border-color:var(--hair);background:rgba(255,255,255,.02);}
+  /* 图标样式：简洁文字（无图标） */
+  body[data-icons=plain] .qnav .qn .ic,
+  body[data-icons=plain] .fhead .fic{display:none;}
+</style>
+</head>
+<body>
+<div id="bgImg"></div>
+<div id="bgShade"></div>
+<div id="jserr"></div>
+<div class="qnav" id="qnav"></div>
+<div class="wrap">
+
+  <div class="conn" id="connBar">⚠ 无法连接本地服务。请在 PCL 主页点「一键启动服务」（或双击 MC-Timer 里的 <b>启动计时服务.cmd</b>），然后刷新本页。</div>
+  <div class="noteok" id="noteOk">⚡ 已连接本地服务：所有改动自动保存，PCL 本地主页的「游戏时长」卡片会自动刷新。</div>
+
+  <div class="lookbar" id="lookBar">
+    <div class="phead"><span class="lbl">🎨 个性化</span><span class="phead-hint">只影响这个计时面板网页，数据全留在本机</span></div>
+
+    <div class="pgroup">
+      <span class="pgcap">背景</span>
+      <div class="prow">
+        <button id="bgPick" class="lb">🖼 换背景图</button>
+        <button id="bgClear" class="lb danger" style="display:none">移除背景</button>
+        <label class="dims" id="dimWrap"><span id="dimVal">压暗 50%</span>
+          <input type="range" id="bgDim" min="0" max="85" value="50"></label>
+      </div>
+      <input type="file" id="bgFile" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none">
+    </div>
+
+    <div class="pgroup">
+      <span class="pgcap">文字颜色</span>
+      <div class="prow">
+        <input type="color" id="inkPick" value="#eef2f7">
+        <span class="pv" id="inkVal">#eef2f7</span>
+        <button class="pdef" data-def="ink">恢复默认</button>
+      </div>
+    </div>
+
+    <div class="pgroup">
+      <span class="pgcap">强调色（按钮 / 高亮 / 勾选）</span>
+      <div class="prow">
+        <input type="color" id="accentPick" value="#44c7d6">
+        <span class="pv" id="accentVal">#44c7d6</span>
+        <button class="pdef" data-def="accent">恢复默认</button>
+      </div>
+    </div>
+
+    <div class="pgroup">
+      <span class="pgcap">毛玻璃透明度</span>
+      <div class="prow">
+        <input type="range" id="glassRange" min="0" max="100" value="50">
+        <span class="pv" id="glassVal">50</span>
+      </div>
+    </div>
+
+    <div class="pgroup">
+      <span class="pgcap">图标样式</span>
+      <div class="prow">
+        <div class="seg">
+          <button class="segbtn on" data-icons="emoji">彩色图标</button>
+          <button class="segbtn" data-icons="plain">简洁文字</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">背景只改这个计时面板网页（不联网）。PCL 启动器主页的背景在 PCL「设置 → 个性化」里单独换。</div>
+  </div>
+
+  <div class="top">
+    <h1>我的 MC 游戏时长</h1>
+    <div class="mini">
+      <button id="backupBtn">备份</button>
+      <button id="restoreBtn">恢复</button>
+      <button id="stopBtn" class="danger" style="color:#e05545;border-color:#e05545">关闭服务</button>
+      <input type="file" id="fileInput" accept=".json" style="display:none">
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="label">总累计（所有整合包）</div>
+    <div class="numline">
+      <div class="num" id="grand">0:00:00</div>
+      <div class="gdays" id="grandDays"></div>
+    </div>
+    <div class="sub" id="grandSub"></div>
+  </div>
+
+  <div class="auto" id="autoBox">
+    <label class="sw"><input type="checkbox" id="autoOn"><span>自动计时</span></label>
+    <span>记到：</span>
+    <select id="autoPack"></select>
+    <div class="astat" id="autoStat"></div>
+  </div>
+
+  <div class="warn" id="warnBox">
+    <div><b>发现可能忘记结束的计时：</b><span id="warnText"></span><br>你可以结束它计入，也可以直接丢弃这一段。</div>
+    <div class="row">
+      <button class="keep" id="warnKeep">全部结束并计入</button>
+      <button class="discard" id="warnDiscard">全部丢弃这段</button>
+    </div>
+  </div>
+
+  <div class="addbar">
+    <input id="newName" placeholder="输入整合包名字，例如：空岛、我的世界整合包……">
+    <button id="addBtn">＋ 添加整合包</button>
+  </div>
+
+  <div class="mods" id="mods">
+    <div class="boardh">各整合包游玩时间 <span class="s">时长来自存档统计（PCL 看不到）；点一行可展开：开始/结束计时、记时长…</span></div>
+    <div class="boardbar">
+      <span class="lab">排序</span>
+      <select id="boardSort">
+        <option value="">默认</option>
+        <option value="recent">最近玩的时间（新 → 旧）</option>
+        <option value="time">游玩时长（多 → 少）</option>
+        <option value="alpha">名字首字母（拼音 A → Z）</option>
+        <option value="custom">自定义排序（每行旁 ▲▼ 调顺序）</option>
+      </select>
+    </div>
+    <div class="fbar" id="fbar">
+      <button id="fAdd" title="建一个文件夹分组，之后展开某包点「放进文件夹…」放进去">＋ 新建文件夹</button>
+      <label class="fsort"><span>文件夹排序</span>
+        <select id="folderSort">
+          <option value="">创建先后</option>
+          <option value="name">名称（拼音 / 字母）</option>
+          <option value="count">包数量（多 → 少）</option>
+          <option value="custom">自定义排序（文件夹旁 ▲▼ 调顺序）</option>
+        </select>
+      </label>
+      <span class="fhint">想整理？展开任意一行 →「放进文件夹…」（一个包可进多个文件夹）。文件夹只用于归类，不影响总累计。</span>
+    </div>
+    <div class="bdelbar" id="bdelBar">
+      <span class="cnt" id="bdelCnt"></span>
+      <button class="del" id="bdelGo">删除所选记录</button>
+      <button id="bdelClr">取消选择</button>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="packsec" id="packSec">
+    <h2>读取整合包文件夹（PCL 里看不到的信息）</h2>
+    <div class="pshint">请您输入一个整合包文件夹路径（比如 E:\mc\整合包\versions\落幕曲1\.minecraft\versions\落幕曲），我就会读出它<b>每一部分占多大</b>（mods / 存档 / 配置…）、总占用，还有<b>每个存档玩过多长时间</b>。PCL 自带模组清单，这里就不重复列了。读取只算大小、读时长，不动你任何文件。</div>
+    <div class="pkrow">
+      <input id="pkPath" placeholder="例如：E:\mc\整合包\versions\终末幸存者" spellcheck="false">
+      <button id="pkRead">读取</button>
+    </div>
+    <div class="pkrow scan">
+      <button id="pkScan" title="懒得找路径时：全盘扫一遍，把带存档（saves）的整合包 / .minecraft 目录列出来，点一下就自动读取">🔍 自动扫描全盘找存档</button>
+    </div>
+    <div class="pkscanstat" id="pkScanStat"></div>
+    <div class="pkscanres" id="pkScanRes"></div>
+    <div id="pkResult"></div>
+  </div>
+
+  <div class="days">
+    <h2>游玩日历</h2>
+    <div class="calhead">
+      <button id="calPrev" title="上个月">‹</button>
+      <div class="title" id="calTitle"></div>
+      <button id="calNext" title="下个月">›</button>
+      <button class="today" id="calToday" title="回到本月">本月</button>
+    </div>
+    <div class="caljumpbar">
+      <span class="lb">跳到</span>
+      <input id="calJump" placeholder="2025-08" spellcheck="false" title="输入 年份-月份，如 2025-08">
+      <button id="calJumpGo" title="跳到输入的年月">跳转</button>
+      <div class="grow"></div>
+      <button id="calEstBtn" class="est" title="服务没开以前的日子没有精确计时，用存档文件的修改痕迹把历史日期估算回填出来（只影响日历，不动你的累计数据）">估算回填历史日期</button>
+    </div>
+    <div class="calstat" id="calStat"></div>
+    <div class="calgrid" id="calGrid"></div>
+    <div class="callegend" id="calLegend"></div>
+    <div class="caldetail" id="calDetail"></div>
+  </div>
+
+  <div class="foot" id="footNote"></div>
+</div>
+
+<div class="overlay" id="fOver">
+  <div class="modal" id="fModal"></div>
+</div>
+
+<script>
+(function(){
+  var IS_HTTP = (location.protocol.indexOf('http') === 0);
+  var SAVE_KEY = 'MCManTimerV1';
+  var connLost = false;
+
+  // ---- 错误浮层（把页面 JS 报错显示出来，方便定位）----
+  var lastErr = '';
+  function showErr(msg){
+    var box = document.getElementById('jserr');
+    if(!box) return;
+    var txt = String(msg && msg.message || msg);
+    if(txt === lastErr) return;
+    lastErr = txt;
+    box.textContent = '页面内部错误：' + txt + '\n(请把这段文字告诉 Claude)';
+    box.classList.add('show');
+  }
+  window.addEventListener('error', function(ev){ showErr(ev.message); });
+  window.addEventListener('unhandledrejection', function(ev){ showErr('Promise: ' + (ev.reason && ev.reason.message || ev.reason)); });
+  // 渲染包一层：渲染异常只上报，不再被当成断网
+  function safeRender(fn){ try { fn(); } catch(e){ showErr(e); } }
+
+  // ---- 工具 ----
+  function pad(n){ return (n<10?'0':'')+n; }
+  function now(){ return Math.floor(Date.now()/1000); }
+  function seed(){
+    return { mods:[], days:{}, notes:{}, auto:{ enabled:false, packId:null }, excl:[], folders:[], ui:{ order:[], forder:[], ink:'#eef2f7', accent:'#44c7d6', glass:50, icons:'emoji' } };
+  }
+  function freshSeed(){
+    var s = seed();
+    s.mods.push({ id: mkid(), name:'自动计时', total:0, start:null, autoStarted:false });
+    s.mods.push({ id: mkid(), name:'其它世界',   total:0, start:null, autoStarted:false });
+    s.auto.packId = s.mods[0].id;
+    return s;
+  }
+  var _c = 100;
+  function mkid(){ return 'm' + Date.now() + '_' + (++_c); }
+  function activeSeconds(m){ return (m && m.start) ? Math.max(0, now()-m.start) : 0; }
+  function totalOf(m){ return m ? ((Number(m.total)||0)+activeSeconds(m)) : 0; }
+  function grandTotal(){ var t=0; state.mods.forEach(function(m){ t+=totalOf(m); }); return t; }
+  function find(id){ for(var i=0;i<state.mods.length;i++) if(state.mods[i].id===id) return state.mods[i]; return null; }
+  function fmtClock(s){ s=Math.max(0,s); var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60; return h+':'+pad(m)+':'+pad(ss); }
+  function fmtHuman(s){ s=Math.max(0,s); var h=Math.floor(s/3600),m=Math.floor(s%3600/60),ss=s%60; if(h>0)return h+' 小时 '+m+' 分'; if(m>0)return m+' 分 '+ss+' 秒'; return ss+' 秒'; }
+  function mcDays(s){ return Math.floor(Math.max(0, s) / 1200); }   // Minecraft 游戏内天数：1 游戏日 = 20 分钟（现实）= 1200 秒
+  function dayKey(ts){ var d=new Date(ts*1000); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function fmtDate(k){ var p=k.split('-'); return parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
+  function hourMin(ts){ var d=new Date(ts*1000); return pad(d.getHours())+':'+pad(d.getMinutes()); }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // ---- 状态 ----
+  var state = IS_HTTP ? freshSeed() : loadLocal();
+  var expanded = {};
+
+  function loadLocal(){
+    try{
+      var raw = localStorage.getItem(SAVE_KEY);
+      if(raw){ var o = JSON.parse(raw); if(o && o.mods) return normalizeLocal(o); }
+    }catch(e){}
+    var s = freshSeed(); localStorage.setItem(SAVE_KEY, JSON.stringify(s)); return s;
+  }
+  function normalizeLocal(o){
+    o.mods = o.mods.map(function(m){ return {id:String(m.id), name:String(m.name||'未命名'), total:Number(m.total)||0, start:m.start?Number(m.start):null, autoStarted:false}; });
+    if(!o.mods.length) o.mods = freshSeed().mods;
+    o.days = (o.days && typeof o.days==='object') ? o.days : {};
+    o.notes = (o.notes && typeof o.notes==='object' && !Array.isArray(o.notes)) ? o.notes : {};
+    o.auto = { enabled:false, packId:null };
+    o.excl = Array.isArray(o.excl) ? o.excl.filter(function(k){ return typeof k==='string' && (k.indexOf('r:')===0 || k.indexOf('p:')===0); }) : [];
+    o.folders = (Array.isArray(o.folders) ? o.folders : []).map(function(f){
+      if(!f || typeof f!=='object' || Array.isArray(f)) return null;
+      return { name:String(f.name||'').trim().slice(0,24),
+        keys:(Array.isArray(f.keys)?f.keys:[]).filter(function(k){ return typeof k==='string' && k.length>2 && (k.indexOf('r:')===0 || k.indexOf('p:')===0); }) };
+    }).filter(Boolean);
+    o.folders = o.folders.filter(function(f,i,arr){ return f.name && arr.map(function(x){return String(x.name).toLowerCase();}).indexOf(String(f.name).toLowerCase())===i; });
+    o.ui = {
+      order:(o.ui && Array.isArray(o.ui.order)?o.ui.order:[]).filter(function(k){ return typeof k==='string' && (k.indexOf('r:')===0 || k.indexOf('p:')===0); }).slice(0,3000),
+      forder:(o.ui && Array.isArray(o.ui.forder)?o.ui.forder:[]).map(function(n){ return String(n||'').trim().slice(0,24); }).filter(Boolean).slice(0,200),
+      ink:(o.ui && typeof o.ui.ink==='string' && /^#[0-9a-fA-F]{6}$/.test(o.ui.ink)) ? o.ui.ink : '#eef2f7',
+      accent:(o.ui && typeof o.ui.accent==='string' && /^#[0-9a-fA-F]{6}$/.test(o.ui.accent)) ? o.ui.accent : '#44c7d6',
+      glass:(o.ui && typeof o.ui.glass==='number') ? Math.min(100,Math.max(0,o.ui.glass)) : 50,
+      icons:(o.ui && (o.ui.icons==='plain'||o.ui.icons==='emoji')) ? o.ui.icons : 'emoji'
+    };
+    return o;
+  }
+  function localSave(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){} }
+
+  // ---- 动作（http 走服务器；本地模式直接改内存） ----
+  function act(p){
+    if(IS_HTTP){
+      return fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)})
+        .then(function(r){ return r.json(); })
+        .then(function(res){
+          if(res && res.ok && res.state){ state=res.state; safeRender(renderAll); }
+          return (res && res.ok && res.state) ? res.state : null;
+        })
+        .catch(function(){ connLost=true; refreshBars(); return null; });
+    } else {
+      actLocal(p);
+      localSave();
+      renderAll();
+      return state;
+    }
+  }
+  function actLocal(p){
+    var a=p.action, m=p.id?find(p.id):null;
+    if(a==='add'){
+      var nm=String(p.name||'').trim()||('整合包 '+(state.mods.length+1));
+      var folderL = (p.folder && String(p.folder).trim()) ? String(p.folder).trim() : '';
+      var dupL = folderL ? state.mods.some(function(x){ return x.folder && normPath(x.folder)===normPath(folderL); }) : false;
+      if(!dupL){
+        var rec={ id:mkid(), name:nm, total:0, start:null, autoStarted:false };
+        if(folderL) rec.folder=folderL;
+        var seedL=Math.floor(Number(p.seconds)||0); if(seedL>0) rec.total=seedL;
+        state.mods.push(rec);
+        // 本地模式和服务器口径一致：文件夹曾被设“不计入总榜”时，新记录照样不计入
+        if(folderL && state.excl.indexOf('p:'+normPath(folderL))>=0 && state.excl.indexOf('r:'+rec.id)<0) state.excl.push('r:'+rec.id);
+      }
+    }
+    else if(a==='rename' && m){ m.name = String(p.name||'').trim() || m.name; }
+    else if(a==='del' && m){
+      state.mods = state.mods.filter(function(x){ return x.id!==p.id; });
+      if(state.excl) state.excl = state.excl.filter(function(k){ return k!=='r:'+p.id; });
+      if(Array.isArray(state.folders)) state.folders.forEach(function(f){ if(Array.isArray(f.keys)) f.keys=f.keys.filter(function(k){ return k!=='r:'+p.id; }); });
+      if(state.ui && Array.isArray(state.ui.order)) state.ui.order = state.ui.order.filter(function(k){ return k!=='r:'+p.id; });
+    }
+    else if(a==='start' && m && !m.start){ m.start=now(); m.autoStarted=false; }
+    else if(a==='stop' && m){ if(m.start){ var el=activeSeconds(m); m.total=Math.max(0,(Number(m.total)||0)+el); var k=dayKey(now()); state.days[k]=(state.days[k]||0)+el; m.start=null; m.autoStarted=false; } }
+    else if(a==='discard' && m){ m.start=null; m.autoStarted=false; }
+    else if(a==='adjust' && m){ m.total = Math.max(0,(Number(m.total)||0)+Math.floor(Number(p.seconds)||0)); }
+    else if(a==='setnote' && p.date && /^\d{4}-\d{2}-\d{2}$/.test(String(p.date))){ var s=String(p.note==null?'':p.note).trim().slice(0,500); if(s) state.notes[String(p.date)]=s; else delete state.notes[String(p.date)]; }
+    else if(a==='setcount'){
+      var ks=Array.isArray(p.keys)?p.keys:(p.key?[p.key]:[]), on=!!p.on;
+      state.excl = state.excl || [];
+      ks.forEach(function(k){
+        if(typeof k!=='string' || k.length<=2 || (k.indexOf('r:')!==0 && k.indexOf('p:')!==0)) return;
+        var i=state.excl.indexOf(k);
+        if(on && i>=0) state.excl.splice(i,1);
+        if(!on && i<0) state.excl.push(k);
+      });
+    }
+    else if(a==='foldset'){
+      state.folders=Array.isArray(state.folders)?state.folders:[];
+      var fkeysL=(p.keys||[]).filter(function(k){ return typeof k==='string' && k.length>2 && (k.indexOf('r:')===0||k.indexOf('p:')===0); });
+      if(!fkeysL.length) return;
+      var seenF={}, fnamesL=[];
+      (Array.isArray(p.folders)?p.folders:[]).forEach(function(n){
+        var nm=String(n||'').trim().slice(0,24); if(!nm||seenF[nm.toLowerCase()])return; seenF[nm.toLowerCase()]=1; fnamesL.push(nm);
+      });
+      var findFL=function(nm){ for(var z=0;z<state.folders.length;z++){ if(String(state.folders[z].name||'').toLowerCase()===nm.toLowerCase()) return z; } return -1; };
+      state.folders.forEach(function(f){ if(Array.isArray(f.keys)) f.keys=f.keys.filter(function(k){ return fkeysL.indexOf(k)<0; }); });
+      fnamesL.forEach(function(nm){ if(findFL(nm)<0) state.folders.push({name:nm, keys:[]}); });
+      fnamesL.forEach(function(nm){ var f=state.folders[findFL(nm)]; fkeysL.forEach(function(k){ if(f.keys.indexOf(k)<0) f.keys.push(k); }); });
+    }
+    else if(a==='addfolder'){
+      var nmA=String(p.name||'').trim().slice(0,24); if(!nmA) return;
+      state.folders=Array.isArray(state.folders)?state.folders:[];
+      var hasA=false; for(var aa=0;aa<state.folders.length;aa++){ if(String(state.folders[aa].name||'').toLowerCase()===nmA.toLowerCase()) hasA=true; }
+      if(!hasA) state.folders.push({name:nmA, keys:[]});
+    }
+    else if(a==='delfolder'){
+      var nmD=String(p.name||'').trim();
+      state.folders=(Array.isArray(state.folders)?state.folders:[]).filter(function(f){ return String(f.name||'').trim().toLowerCase()!==nmD.toLowerCase(); });
+      if(state.ui && Array.isArray(state.ui.forder)) state.ui.forder=state.ui.forder.filter(function(n){ return String(n||'').trim().toLowerCase()!==nmD.toLowerCase(); });
+    }
+    else if(a==='renfolder'){
+      var frL=String(p.name||'').trim(), toL=String(p.to||'').trim().slice(0,24);
+      if(!frL||!toL) return;
+      state.folders=state.folders||[];
+      var iaL=-1, ibL=-1;
+      for(var jj=0;jj<state.folders.length;jj++){
+        var flL=String(state.folders[jj].name||'').toLowerCase();
+        if(flL===frL.toLowerCase()) iaL=jj;
+        if(flL===toL.toLowerCase()) ibL=jj;
+      }
+      if(iaL<0) return;
+      var mergedL = (ibL>=0 && ibL!==iaL);
+      if(state.ui && Array.isArray(state.ui.forder)){
+        var fzL = state.ui.forder.map(function(n){ return String(n||'').trim().toLowerCase(); }).indexOf(frL.toLowerCase());
+        if(fzL>=0){ if(mergedL) state.ui.forder.splice(fzL,1); else state.ui.forder[fzL]=toL; }
+        state.ui.forder=state.ui.forder.filter(function(n,ix,arr){ return n && arr.indexOf(n)===ix; }).slice(0,200);
+      }
+      if(mergedL){
+        state.folders[ibL].keys=(state.folders[ibL].keys||[]).concat(state.folders[iaL].keys||[]);
+        state.folders[ibL].keys=state.folders[ibL].keys.filter(function(k,ix,arr){ return arr.indexOf(k)===ix; });
+        state.folders.splice(iaL,1);
+      } else state.folders[iaL].name=toL;
+    }
+    else if(a==='sortorder'){
+      state.ui=state.ui||{};
+      state.ui.order=(Array.isArray(p.order)?p.order:[]).filter(function(k){ return typeof k==='string' && (k.indexOf('r:')===0||k.indexOf('p:')===0); }).slice(0,3000);
+    }
+    else if(a==='foldorder'){
+      state.ui=state.ui||{};
+      state.ui.forder=(Array.isArray(p.order)?p.order:[]).map(function(n){ return String(n||'').trim().slice(0,24); }).filter(Boolean).slice(0,200);
+    }
+    else if(a==='setui'){
+      state.ui=state.ui||{};
+      if(typeof p.ink==='string' && /^#[0-9a-fA-F]{6}$/.test(p.ink)) state.ui.ink=p.ink;
+      if(typeof p.accent==='string' && /^#[0-9a-fA-F]{6}$/.test(p.accent)) state.ui.accent=p.accent;
+      if(p.glass!=null){ var g2=Math.floor(Number(p.glass)); state.ui.glass=isNaN(g2)?50:Math.min(100,Math.max(0,g2)); }
+      if(p.icons==='emoji'||p.icons==='plain') state.ui.icons=p.icons;
+    }
+  }
+
+  // ---- 渲染 ----
+  function renderAll(){ refreshBars(); renderHero(); renderWarn(); renderBoard(); renderAuto(); renderCalGrid(); refreshFoot(); applyBg(); applyTheme(); packInit(); }
+
+  function refreshBars(){
+    var conn=document.getElementById('connBar'), ok=document.getElementById('noteOk');
+    if(IS_HTTP){
+      conn.classList.toggle('show', connLost);
+      ok.classList.toggle('show', !connLost);
+    } else {
+      conn.classList.remove('show'); ok.classList.remove('show');
+    }
+  }
+  function refreshFoot(){
+    var f=document.getElementById('footNote');
+    if(IS_HTTP){
+      f.innerHTML = '主榜里每个整合包的时长来自它的<strong>存档统计</strong>（游戏实际玩过的时间，PCL 自己看不到）；想精确统计某一段，就展开那包点「开始计时」/「结束计时」，或开「自动计时」，进游戏自动记、退出自动停。下面「游玩日历」顶部可直接输入“年份-月份”跳转；蓝色=服务精确计时，橙色 ≈ = 按存档痕迹估算回填的旧日子，点某天能写备注，有精确计时时会列出当天的时间段。<br>所有改动会自动写入 PCL 本地主页文件（MC-Timer/PCL主页.xaml），回到 PCL 主页即可看到最新数字。数据存于 mc-time.json，建议定期「备份」。<br>「读取整合包文件夹」能看每个整合包各部分占用多大、每个存档玩过多久；再往下可以给这个面板换背景图。<br>想停止后台服务：点右上角「关闭服务」。';
+    } else {
+      f.innerHTML = '本地备用模式（未连接服务）：数据存在浏览器里。要自动同步到 PCL，请在 PCL 主页点「一键启动服务」（或双击 启动计时服务.cmd）后刷新本页。';
+    }
+  }
+
+  function renderHero(){
+    var sum=boardSum();
+    document.getElementById('grand').textContent = fmtClock(sum.sec);
+    var gd=document.getElementById('grandDays');
+    if(gd){ var dd=mcDays(sum.sec); gd.textContent = dd>0 ? (dd+' 游戏日') : ''; }
+    var sub='';
+    if(!IS_HTTP){
+      sub='本地备用模式：时长只存在浏览器里，连上服务后才会同步到 PCL。';
+    } else if(!boardLoaded){
+      sub='正在读取各整合包的时长…';
+    } else {
+      sub='共 '+sum.count+' 个整合包'+(sum.excl>0?('（其中 '+sum.excl+' 个不计入总榜）'):'')+' · 时长取自各包存档统计（PCL 不显示）';
+      var actv=[], i;
+      for(i=0;i<state.mods.length;i++){ if(state.mods[i].start) actv.push(state.mods[i].name); }
+      if(actv.length){
+        sub+=' · <span class="on">●</span> 计时中：';
+        for(i=0;i<actv.length;i++) sub+='「'+esc(actv[i])+'」';
+      } else if(state.running){
+        sub+=' · <span class="on">●</span> 检测到游戏在运行'+(state.runningPack?(' · 在玩「'+esc(state.runningPack)+'」'):'');
+      }
+    }
+    document.getElementById('grandSub').innerHTML = sub;
+  }
+
+  function renderWarn(){
+    var box=document.getElementById('warnBox');
+    var stale = state.mods.filter(function(m){ return m.start && !m.autoStarted && (now()-m.start) > 8*3600; });
+    if(stale.length){
+      var txt = stale.map(function(m){ return '「'+esc(m.name)+'」于 '+hourMin(m.start)+' 开始，已过去 '+fmtHuman(now()-m.start); }).join('；');
+      document.getElementById('warnText').innerHTML = txt;
+      box.classList.add('show');
+    } else box.classList.remove('show');
+  }
+
+  function renderMods(){
+    var html='';
+    var autoPack = (state.auto && state.auto.enabled) ? state.auto.packId : null;
+    state.mods.forEach(function(m){
+      var isActive=!!m.start, live=activeSeconds(m);
+      var total=(Number(m.total)||0)+live;
+      var isAuto = (m.id===autoPack);
+      html += '<div class="modcard'+(isActive?' playing':'')+'" data-id="'+m.id+'">'
+        + '<div class="mhead">'
+        +   '<span class="mname" data-ren title="点击改名">'+esc(m.name)+(isAuto?' <span class="tag">· 自动</span>':'')+'</span>'
+        +   '<span class="dot">● 计时中</span>'
+        +   '<button class="mdel" data-act="del">删除</button>'
+        + '</div>'
+        + '<div class="mtotal">'+fmtHuman(total)+'</div>'
+        + '<div class="mlive">'+(isActive?('本次 '+fmtClock(live)+'　开始于 '+hourMin(m.start)):'')+'</div>'
+        + '<div class="mbtns">'
+        +   (isActive
+        ?     '<button class="stop" data-act="stop">■ 结束计时</button>'
+        :     '<button class="go" data-act="start">▶ 开始计时</button>')
+        +   '<button data-act="adj">± 调整</button>'
+        + '</div>'
+        + '<div class="adj'+(expanded[m.id]?' show':'')+'">'
+        +   '<div class="cap">手动加减（忘记开计时/补记/扣减）：</div>'
+        +   '<div class="chips">'
+        +     '<button data-act="add" data-v="3600">+1 小时</button>'
+        +     '<button data-act="add" data-v="1800">+30 分</button>'
+        +     '<button data-act="add" data-v="600">+10 分</button>'
+        +     '<button data-act="add" data-v="300">+5 分</button>'
+        +     '<button data-act="add" data-v="60">+1 分</button>'
+        +     '<button class="minus" data-act="add" data-v="-300">-5 分</button>'
+        +     '<button class="minus" data-act="add" data-v="-1800">-30 分</button>'
+        +     '<button data-act="custom">自定义…</button>'
+        +   '</div>'
+        + '</div>'
+        + '</div>';
+    });
+    document.getElementById('mods').innerHTML = html;
+  }
+
+  function renderAuto(){
+    var box=document.getElementById('autoBox');
+    if(!IS_HTTP){ box.classList.remove('show'); return; }
+    box.classList.add('show');
+    var sel=document.getElementById('autoPack');
+    var prev=sel.value;
+    sel.innerHTML='';
+    state.mods.forEach(function(m){
+      var o=document.createElement('option'); o.value=m.id; o.textContent=m.name;
+      if(!state.auto.packId || m.id===state.auto.packId) o.selected=true;
+      sel.appendChild(o);
+    });
+    document.getElementById('autoOn').checked = !!(state.auto && state.auto.enabled);
+    var st=document.getElementById('autoStat');
+    if(state.auto && state.auto.enabled){
+      var pk = state.mods.filter(function(m){return m.id===state.auto.packId;})[0];
+      st.innerHTML = state.running
+        ? '<span class="run">● 游戏运行中'
+          +(state.runningPack?(' · 在玩「'+esc(state.runningPack)+'」'):'')
+          +(pk && pk.start?' · 正在自动计时':'')
+          +'</span>'
+        : '<span class="wait">◌ 等待游戏启动…</span>';
+    } else {
+      st.textContent='关闭';
+    }
+  }
+
+  // ---- 游玩日历 ----
+  var calY=null, calM=null, selKey=null, draftKey=null, _gridHtml='';
+  var estSec=null, estPk=null, estLoading=false;   // 历史估算：estSec[date]=秒，estPk[date]=[包名]（按存档痕迹推算，一律标“≈”）
+  function ensureCal(){ if(calY===null){ var t=new Date(); calY=t.getFullYear(); calM=t.getMonth()+1; } }
+  function dateKey(y,m,d){ return y+'-'+pad(m)+'-'+pad(d); }
+  function nowKey(){ var t=new Date(); return dateKey(t.getFullYear(),t.getMonth()+1,t.getDate()); }
+  function monthLabel(){ return calY+' 年 '+calM+' 月'; }
+  function compactH(s){
+    s=Math.max(0,s); var h=Math.floor(s/3600), m=Math.floor(s%3600/60);
+    if(h) return h+'h'+(m?m+'m':'');
+    if(m) return m+'m';
+    if(s>=60) return '1m';
+    return s+'s';
+  }
+  // 某天要显示的时长：精确计时(days)优先；没有才用估算回填，估算必须带“≈”
+  function dayVal(key){
+    var real=(state.days&&state.days[key])||0;
+    if(real>0) return { val:real, isEst:false };
+    var est=(estSec && estSec[key])||0;
+    return { val:est, isEst:est>0 };
+  }
+  function loadEst(force){
+    if(!IS_HTTP){ estSec={}; estPk={}; return; }
+    if(estLoading) return;
+    estLoading=true;
+    var btn=document.getElementById('calEstBtn');
+    if(btn){ btn.disabled=true; btn.textContent = force ? '正在重新估算…' : '正在估算回填…'; }
+    fetch('/api/hist'+(force?'?force=1':''))
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if(res && res.ok){ estSec=res.sec||{}; estPk=res.packs||{}; safeRender(renderCalGrid); }
+      })
+      .catch(function(){})
+      .then(function(){
+        estLoading=false;
+        if(btn){ btn.disabled=false; btn.textContent='重新估算回填(≈)'; }
+      });
+  }
+  function renderCalGrid(){
+    ensureCal();
+    var t=new Date(), tk=nowKey(), tY=t.getFullYear(), tM=t.getMonth()+1;
+    document.getElementById('calTitle').textContent = monthLabel();
+    var pre=dateKey(calY,calM,1).slice(0,7);
+    var realSum=0, realDays=0, estSum=0, estDays=0, notes=0, hasEstMonth=false, dk=state.days||{};
+    Object.keys(dk).forEach(function(k){ if(k.indexOf(pre)===0 && dk[k]>0){ realSum+=dk[k]; realDays++; } });
+    if(state.notes) Object.keys(state.notes).forEach(function(k){ if(k.indexOf(pre)===0) notes++; });
+    if(estSec) Object.keys(estSec).forEach(function(k){
+      if(k.indexOf(pre)===0 && estSec[k]>0 && !(dk[k]>0)){ estSum+=estSec[k]; estDays++; hasEstMonth=true; }
+    });
+    var stat;
+    if(realSum>0 || estSum>0){
+      var ps=[];
+      if(realSum>0) ps.push('<span class="sreal">实际计时 '+fmtHuman(realSum)+'</span>');
+      if(estSum>0) ps.push('<span class="sest">估算回填 ≈'+fmtHuman(estSum)+'（'+estDays+' 天）</span>');
+      stat='本月：'+ps.join(' · ');
+      if(notes) stat+=' · '+notes+' 条备注';
+    } else if(notes>0){
+      stat='这个月有 '+notes+' 条备注，但还没有计时记录。';
+    } else if(IS_HTTP && estSec===null){
+      stat='正在读取存档历史，准备把过去的日期估算回填…';
+    } else {
+      stat=(calY===tY&&calM===tM)
+        ? '这个月还没有记录：结束一次计时当天会点亮（蓝色=精确计时）。想看更早的，点右上「估算回填历史日期」。'
+        : '这个月还没有记录。';
+    }
+    document.getElementById('calStat').innerHTML = stat;
+    document.getElementById('calNext').disabled = (calY>=tY && calM>=tM);
+    var first=(new Date(calY,calM-1,1).getDay()+6)%7, dim=new Date(calY,calM,0).getDate();
+    var W=['一','二','三','四','五','六','日'], hdr='';
+    for(var i=0;i<7;i++) hdr+='<div class="calwd">'+W[i]+'</div>';
+    var cells='', d, key, noted, fut, cls, bg, inner, dv;
+    for(i=0;i<first;i++) cells+='<div class="calcell blank"></div>';
+    for(d=1; d<=dim; d++){
+      key=dateKey(calY,calM,d);
+      dv=dayVal(key);
+      noted=!!(state.notes && state.notes[key]);
+      fut=(key>tk);
+      cls='calcell';
+      if(fut) cls+=' future';
+      else { if(dv.val>0) cls+=(dv.isEst?' est':' played'); if(noted) cls+=' noted'; }
+      if(key===tk) cls+=' today';
+      if(key===selKey) cls+=' sel';
+      bg='';
+      if(dv.val>0){
+        var a=(0.10+0.55*Math.min(1,dv.val/21600)).toFixed(3);
+        bg = dv.isEst
+          ? ' style="background:rgba(222,166,54,'+a+')"'
+          : ' style="background:rgba(57,135,229,'+a+')"';
+      }
+      inner='<span class="cn'+(dv.val||noted?'':' dim')+'">'+d+'</span>';
+      if(dv.val>0) inner+='<span class="ct'+(dv.isEst?' est':'')+'">'+(dv.isEst?'≈':'')+compactH(dv.val)+'</span>';
+      if(noted) inner+='<span class="cnote">✎</span>';
+      cells+='<div'+(fut?'':' data-key="'+key+'"')+' class="'+cls+'"'+bg+'>'+inner+'</div>';
+    }
+    var html=hdr+cells;
+    var grid=document.getElementById('calGrid');
+    if(grid.innerHTML!==html) grid.innerHTML=html;   // 没变化就不重建，避免每 500ms 闪一次
+    var lgEl=document.getElementById('calLegend');
+    if(lgEl) lgEl.innerHTML = hasEstMonth
+      ? '<span class="sw"><span class="dot blue"></span>实际计时（精确）</span><span class="sw"><span class="dot amb"></span>≈ 估算回填（存档痕迹推算）</span>'
+      : '';
+    refreshCalDetail(false);
+  }
+  // 选中日详情：可动态刷新的部分（表头 + 时间段/估算说明），备注编辑框保持不动
+  function fillCalSummary(){
+    var dh=document.getElementById('calDhead'), sw=document.getElementById('calSegWrap');
+    if(!dh || !selKey) return;
+    var p=selKey.split('-'), yy=parseInt(p[0],10), lab=parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日';
+    var dv=dayVal(selKey), head;
+    if(dv.val<=0){
+      head='<b>'+yy+' 年 '+lab+'</b> · 这一天没有计时记录';
+    } else if(dv.isEst){
+      head='<b>'+yy+' 年 '+lab+'</b> · <span class="t ehT">≈ '+fmtHuman(dv.val)+'</span> <span class="eh">估算回填（非精确）</span>';
+    } else {
+      head='<b>'+yy+' 年 '+lab+'</b> · 玩了 <span class="t">'+fmtHuman(dv.val)+'</span>';
+    }
+    dh.innerHTML=head;
+    if(!sw) return;
+    var segs=(state.seg && state.seg[selKey] && state.seg[selKey].length) ? state.seg[selKey] : null;
+    var html='';
+    if(segs && segs.length){
+      html+='<div class="calsegs"><div class="segh">当天精确计时的时间段（自动 / 手动计时）</div>';
+      segs.forEach(function(g){
+        var st=new Date(g.s*1000), en=new Date(g.e*1000);
+        function hm(x){ return pad(x.getHours())+':'+pad(x.getMinutes()); }
+        var range=hm(st)+' – '+(en.getDate()===st.getDate() ? hm(en) : '次日 '+hm(en));
+        html+='<div class="calseg"><span class="segt">'+range+'</span><span class="segn">'+esc(g.pack||'')+'</span><span class="segs">'+compactH(en-g.s)+'</span></div>';
+      });
+      html+='</div>';
+    }
+    if(dv.isEst){
+      var pks=(estPk && estPk[selKey] && estPk[selKey].length) ? estPk[selKey].slice(0,5) : null;
+      html+='<div class="estnote">这天的 <b>≈'+fmtHuman(dv.val)+'</b> 不是精确计时（当时服务没在记录），是按你的<strong>存档文件修改痕迹</strong>（level.dat / stats / region）推算出来的，只作参考。'
+        +(pks?(' 推测在玩：'+pks.map(esc).join('、')):'')
+        +' 想把这天记精确，就在那天开着服务、让「自动计时」帮你记。</div>';
+    } else if(!segs || !segs.length){
+      html+='<div class="estnote dim">这一天的时长来自面板计时累计（更早的计时没有留下时间段明细，所以这里只显示总量）。</div>';
+    }
+    sw.innerHTML=html;
+  }
+  function refreshCalDetail(force){
+    var box=document.getElementById('calDetail');
+    if(!selKey){ box.classList.remove('show'); box.innerHTML=''; return; }
+    var note=(state.notes && state.notes[selKey])||'';
+    if(force || draftKey!==selKey){
+      draftKey=selKey;
+      box.classList.add('show');
+      box.innerHTML =
+        '<div class="dhead" id="calDhead"></div>'
+        + '<div id="calSegWrap"></div>'
+        + '<div class="dhint">这一天在 MC 里做了什么？（可选，留句纪念）</div>'
+        + '<textarea id="calNote" placeholder="例如：通了末地、打了末影龙 / 和朋友盖房子 / 开了新档"></textarea>'
+        + '<div class="row">'
+        +   '<button id="calSave">保存备注</button>'
+        +   (note ? '<button id="calClear" class="del">清除备注</button>' : '')
+        +   '<button id="calClose" class="ghost">关闭</button>'
+        +   '<span id="calSaved" class="saved"></span>'
+        + '</div>';
+      document.getElementById('calNote').value = note || '';
+    }
+    box.classList.add('show');
+    fillCalSummary();
+  }
+  function shiftMonth(dm){
+    ensureCal(); calM+=dm;
+    if(calM>12){ calM=1; calY++; } else if(calM<1){ calM=12; calY--; }
+    safeRender(renderCalGrid);
+  }
+  function goToday(){
+    var t=new Date(); calY=t.getFullYear(); calM=t.getMonth()+1;
+    safeRender(renderCalGrid);
+  }
+  function jumpToMonth(raw){
+    var v=String(raw||'').trim().replace(/[年.\/\\]/g,'-');
+    var m=v.match(/^(\d{4})-?(\d{0,2})/);
+    if(!m) return false;
+    var y=parseInt(m[1],10), mo=(m[2] && parseInt(m[2],10)) || 1;
+    if(!(y>=2000 && y<=2200) || !(mo>=1 && mo<=12)) return false;
+    var t=new Date(), tY=t.getFullYear(), tM=t.getMonth()+1;
+    if(y>tY || (y===tY && mo>tM)){ y=tY; mo=tM; }   // 不能跳到未来（还没发生的事）
+    calY=y; calM=mo; selKey=null; draftKey=null;
+    safeRender(renderCalGrid);
+    var inp=document.getElementById('calJump');
+    if(inp) inp.value=y+'-'+pad(mo);
+    return true;
+  }
+  function flashJump(el){
+    if(!el) return;
+    el.style.borderColor='#ff6b5e';
+    setTimeout(function(){ if(el) el.style.borderColor=''; }, 900);
+  }
+  function calSavedFlash(){
+    var el=document.getElementById('calSaved'); if(!el) return;
+    el.textContent='✓ 已保存';
+    setTimeout(function(){ if(el) el.textContent=''; },1500);
+  }
+
+  // ---- 事件 ----
+  document.getElementById('mods').addEventListener('click', function(e){
+    var card=e.target.closest('.modcard'); if(!card) return;
+    var id=card.getAttribute('data-id'), m=find(id); if(!m) return;
+    var t=e.target.closest('[data-act]');
+    var ren=e.target.closest('[data-ren]');
+    if(t){
+      var a=t.getAttribute('data-act');
+      if(a==='start') act({action:'start',id:id});
+      else if(a==='stop') act({action:'stop',id:id});
+      else if(a==='adj'){ expanded[id]=!expanded[id]; renderMods(); }
+      else if(a==='del'){ if(confirm('确定删除「'+m.name+'」吗？它的累计会一起删除。')){ delete expanded[id]; act({action:'del',id:id}); } }
+      else if(a==='add'){ act({action:'adjust',id:id,seconds:parseInt(t.getAttribute('data-v'),10)}); }
+      else if(a==='custom'){ var inp=prompt('输入要加减的分钟数（补记填正数，扣减填负数）：','30'); if(inp!==null&&inp.trim()!==''){ var n=parseInt(inp,10); if(!isNaN(n)) act({action:'adjust',id:id,seconds:n*60}); else alert('请输入数字。'); } }
+    } else if(ren){
+      var nn=prompt('重命名这个整合包：',m.name);
+      if(nn!==null&&nn.trim()!=='') act({action:'rename',id:id,name:nn.trim()});
+    }
+  });
+
+  function addMod(){
+    var inp=document.getElementById('newName');
+    var name=inp.value.trim();
+    if(!name) name='整合包 '+(state.mods.length+1);
+    act({action:'add',name:name});
+    inp.value='';
+  }
+  document.getElementById('addBtn').addEventListener('click', addMod);
+  document.getElementById('newName').addEventListener('keydown', function(e){ if(e.key==='Enter') addMod(); });
+
+  document.getElementById('warnKeep').addEventListener('click', function(){
+    state.mods.forEach(function(m){ if(m.start && !m.autoStarted){ act({action:'stop',id:m.id}); } });
+  });
+  document.getElementById('warnDiscard').addEventListener('click', function(){
+    state.mods.forEach(function(m){ if(m.start && !m.autoStarted){ act({action:'discard',id:m.id}); } });
+  });
+
+  document.getElementById('autoOn').addEventListener('change', function(){
+    var sel=document.getElementById('autoPack');
+    act({action:'setauto', enabled:this.checked, packId:sel.value});
+  });
+  document.getElementById('autoPack').addEventListener('change', function(){
+    act({action:'setauto', enabled:document.getElementById('autoOn').checked, packId:this.value});
+  });
+
+  document.getElementById('backupBtn').addEventListener('click', function(){
+    var st = state;
+    var pr = IS_HTTP ? fetch('/api/data').then(function(r){ return r.json(); }).then(function(res){ if(res&&res.state) st=res.state; }) : Promise.resolve();
+    pr.then(function(){
+      var blob=new Blob([JSON.stringify(st,null,2)],{type:'application/json'});
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+      var d=new Date(); a.download='MC游戏时长备份-'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.json';
+      document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(a.href); },100);
+    });
+  });
+  document.getElementById('restoreBtn').addEventListener('click', function(){ document.getElementById('fileInput').click(); });
+  document.getElementById('stopBtn').addEventListener('click', function(){
+    if(!IS_HTTP){ alert('服务未连接，无需关闭。'); return; }
+    if(confirm('关闭本地时长服务？关闭后本面板和 PCL 主页的自动更新会暂停（数据已保存）。需要时再去 PCL 主页点「一键启动服务」。')){
+      fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'shutdown'})})
+        .then(function(r){ return r.json(); }).then(function(res){ if(res&&res.ok) alert('服务已关闭。可以关闭本页面了。'); })
+        .catch(function(){ alert('关闭指令已发出（连接将断开）。'); });
+    }
+  });
+  document.getElementById('fileInput').addEventListener('change', function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(){
+      try{
+        var o=JSON.parse(r.result);
+        if(!o||!o.mods) throw new Error('bad');
+        if(!confirm('用这个备份覆盖当前数据？')) return;
+        if(IS_HTTP) act({action:'import',state:o});
+        else { state=normalizeLocal(o); localSave(); renderAll(); }
+      }catch(err){ alert('备份文件格式不对。'); }
+      e.target.value='';
+    };
+    r.readAsText(f,'utf-8');
+  });
+
+  // ---- 游玩日历交互 ----
+  document.getElementById('calPrev').addEventListener('click', function(){ shiftMonth(-1); });
+  document.getElementById('calNext').addEventListener('click', function(){ var t=new Date(); if(calY===t.getFullYear() && calM>=t.getMonth()+1) return; shiftMonth(1); });
+  document.getElementById('calToday').addEventListener('click', goToday);
+  document.getElementById('calJumpGo').addEventListener('click', function(){
+    var inp=document.getElementById('calJump');
+    if(!jumpToMonth(inp.value)) flashJump(inp);
+  });
+  document.getElementById('calJump').addEventListener('keydown', function(e){
+    if(e.key!=='Enter') return;
+    if(!jumpToMonth(this.value)) flashJump(this);
+  });
+  document.getElementById('calEstBtn').addEventListener('click', function(){ loadEst(true); });
+  if(IS_HTTP) loadEst(false);   // 打开页面就自动拉一次历史估算（首次约 2 秒，之后走 30 分钟缓存）
+  document.getElementById('calGrid').addEventListener('click', function(e){
+    var cell=e.target.closest('.calcell'); if(!cell) return;
+    var key=cell.getAttribute('data-key'); if(!key) return;
+    selKey=key; draftKey=null;         // draftKey 置空 → 下次刷新会重建编辑区并填入该日备注
+    safeRender(renderCalGrid);
+  });
+  document.getElementById('calDetail').addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    if(b.id==='calSave'){
+      var v=(document.getElementById('calNote').value||'').trim();
+      if(state.notes){ if(v) state.notes[selKey]=v; else delete state.notes[selKey]; }
+      act({action:'setnote', date:selKey, note:v});
+      calSavedFlash();
+      safeRender(renderCalGrid);
+    } else if(b.id==='calClear'){
+      if(state.notes) delete state.notes[selKey];
+      act({action:'setnote', date:selKey, note:''});
+      draftKey=null;
+      safeRender(renderCalGrid);
+    } else if(b.id==='calClose'){
+      selKey=null; draftKey=null;
+      safeRender(renderCalGrid);
+    }
+  });
+
+  // ================= 面板外观：背景图（只作用于本网页） =================
+  var bgDragging=false, _bgBust=Math.floor(Date.now()/1000);
+  function fmtBytes(b){ b=b||0; if(b>=1073741824) return (b/1073741824).toFixed(2)+' GB'; if(b>=1048576) return (b/1048576).toFixed(1)+' MB'; if(b>=1024) return Math.round(b/1024)+' KB'; return b+' B'; }
+
+  function applyBg(){
+    var bar=document.getElementById('lookBar');
+    if(!IS_HTTP){ if(bar) bar.classList.remove('show'); return; }
+    bar.classList.add('show');
+    var ui=state.ui||{};
+    var img=document.getElementById('bgImg'), shade=document.getElementById('bgShade');
+    var dim=(typeof ui.dim==='number')?ui.dim:50;
+    var url = ui.bg ? ("url('/bg?v="+_bgBust+"')") : '';
+    if(url !== img.getAttribute('data-bg')){
+      img.setAttribute('data-bg', url);
+      img.style.backgroundImage = url;
+      img.style.display = ui.bg ? 'block' : 'none';
+    }
+    if(!bgDragging){
+      if(shade) shade.style.background = ui.bg ? ('rgba(0,0,0,'+Math.min(0.8,(dim/85)*0.75).toFixed(3)+')') : '';
+      var dv=document.getElementById('dimVal'); if(dv) dv.textContent='压暗 '+dim+'%';
+      var dsl=document.getElementById('bgDim'); if(dsl) dsl.value=dim;
+    }
+    var cl=document.getElementById('bgClear'); if(cl) cl.style.display=ui.bg?'':'none';
+    var dw=document.getElementById('dimWrap'); if(dw) dw.classList.toggle('show', !!ui.bg);
+  }
+  // 个性化主题：文字颜色 / 强调色 / 毛玻璃透明度 / 图标样式（应用到 CSS 变量 + 同步控件）
+  function applyTheme(){
+    var ui=state.ui||{};
+    var root=document.documentElement;
+    var ink=(typeof ui.ink==='string' && /^#[0-9a-fA-F]{6}$/.test(ui.ink)) ? ui.ink : '#eef2f7';
+    var accent=(typeof ui.accent==='string' && /^#[0-9a-fA-F]{6}$/.test(ui.accent)) ? ui.accent : '#44c7d6';
+    var g=(typeof ui.glass==='number') ? Math.min(100,Math.max(0,ui.glass)) : 50;
+    root.style.setProperty('--ink', ink);
+    root.style.setProperty('--accent', accent);
+    root.style.setProperty('--glass-a1', (0.18 - g/100*0.16).toFixed(3));
+    root.style.setProperty('--glass-a2', (0.10 - g/100*0.095).toFixed(3));
+    document.body.setAttribute('data-icons', (ui.icons==='plain')?'plain':'emoji');
+    var ip=document.getElementById('inkPick'); if(ip && ip.value!==ink) ip.value=ink;
+    var iv=document.getElementById('inkVal'); if(iv) iv.textContent=ink;
+    var ap=document.getElementById('accentPick'); if(ap && ap.value!==accent) ap.value=accent;
+    var av=document.getElementById('accentVal'); if(av) av.textContent=accent;
+    var gr=document.getElementById('glassRange'); if(gr && parseInt(gr.value,10)!==g) gr.value=g;
+    var gv=document.getElementById('glassVal'); if(gv) gv.textContent=g;
+    var segs=document.querySelectorAll('.segbtn'); for(var i=0;i<segs.length;i++){ segs[i].classList.toggle('on', segs[i].getAttribute('data-icons')===(ui.icons==='plain'?'plain':'emoji')); }
+  }
+  function previewDim(v){
+    var ui=state.ui||{};
+    var dv=document.getElementById('dimVal'); if(dv) dv.textContent='压暗 '+v+'%';
+    var dsl=document.getElementById('bgDim'); if(dsl) dsl.value=v;
+    if(!ui.bg) return;
+    var shade=document.getElementById('bgShade');
+    if(shade) shade.style.background='rgba(0,0,0,'+Math.min(0.8,(v/85)*0.75).toFixed(3)+')';
+  }
+  function bgUpload(){
+    if(!IS_HTTP) return;
+    var f=document.getElementById('bgFile');
+    if(!f || !f.files.length) return;
+    var file=f.files[0];
+    if(file.size>14*1024*1024){ alert('图片超过 14MB，请换小一点的。'); f.value=''; return; }
+    var rd=new FileReader();
+    rd.onload=function(){ _bgBust=Math.floor(Date.now()/1000); act({action:'setbg', bg:rd.result}); f.value=''; };
+    rd.readAsDataURL(file);
+  }
+
+  // ================= 各整合包游玩时间（主榜） =================
+  var boardPacks=[], boardLoaded=false;
+  var boardSort='';  // '' 默认 | 'recent' 最近玩 | 'time' 时长多→少 | 'alpha' 首字母 | 'custom' 自定义
+  var bExp={};       // 记录哪一行展开：'p:'+path / 'r:'+id / 'adj:'+key
+  var bSel={};       // 批量删除：已勾选的行 key（key 与展开用的 rowKeyOf 相同）
+  var pkStarted=false, pkSeeded=false;   // pkSeeded: 路径框只在第一次打开时预填一次，删了不再补回
+
+  // ---------- 文件夹分组（标签式整理，不影响总累计） + 自定义排序 ----------
+  var fOpen={};   // 文件夹分组是否折叠：默认展开，点一下收起（仅本页记忆）
+  var folderSort='';   // '' 创建先后 | 'name' 名称 | 'count' 包数量多→少 | 'custom' 自定义
+  function curFolders(){ return (state && Array.isArray(state.folders)) ? state.folders : []; }
+  function rowFoldKeys(r){   // 一行在文件夹 / 排序里的“身份”：和「不计入总榜」同一套 key
+    var ks=[];
+    if(r && r.rec) ks.push('r:'+r.rec.id);
+    if(r && r.path) ks.push('p:'+normPath(r.path));
+    return ks;
+  }
+  function folderKeyIn(folder, keys){
+    var ks=(folder && Array.isArray(folder.keys)) ? folder.keys : [];
+    for(var i=0;i<keys.length;i++){ for(var j=0;j<ks.length;j++){ if(ks[j]===keys[i]) return true; } }
+    return false;
+  }
+  function rowFoldersOf(r){
+    var keys=rowFoldKeys(r), out=[];
+    curFolders().forEach(function(f){ if(folderKeyIn(f, keys)) out.push(f.name); });
+    return out;
+  }
+  function rowInAnyFolder(r){ return rowFoldersOf(r).length>0; }
+  function foldCounts(){
+    var folders=curFolders(), counts={}, rows=rowsNow(), i, r;
+    folders.forEach(function(f){ counts[f.name]=0; });
+    for(i=0;i<rows.length;i++){ r=rows[i]; var ks=rowFoldKeys(r); folders.forEach(function(f){ if(folderKeyIn(f, ks)) counts[f.name]++; }); }
+    return counts;
+  }
+  function customSeq(){   // 自定义顺序 = 服务器存的顺序 + 新出现的行自动补在最后（按默认序）
+    var seq = (state.ui && Array.isArray(state.ui.order)) ? state.ui.order.slice() : [];
+    var rows = rowsNow();
+    for(var i=0;i<rows.length;i++){ var k=rowKeyOf(rows[i]); if(seq.indexOf(k)<0) seq.push(k); }
+    return seq;
+  }
+  function customMove(key, dir){   // 自定义排序里上移 / 下移一行
+    var arr=customSeq(), i=arr.indexOf(key), j=i+dir;
+    if(i<0 || j<0 || j>=arr.length) return;
+    arr.splice(i,1); arr.splice(j,0,key);
+    act({action:'sortorder', order:arr});
+  }
+  function folderOrderSeq(){   // 文件夹自定义顺序 = 服务器存的名字顺序 + 新出现的文件夹补在最后
+    var seq=(state.ui && Array.isArray(state.ui.forder)) ? state.ui.forder.slice() : [];
+    var folders=curFolders();
+    for(var i=0;i<folders.length;i++){ if(seq.indexOf(folders[i].name)<0) seq.push(folders[i].name); }
+    return seq;
+  }
+  function folderMove(name, dir){   // 文件夹自定义排序里上移 / 下移
+    var seq=folderOrderSeq(), i=seq.indexOf(name), j=i+dir;
+    if(i<0 || j<0 || j>=seq.length) return;
+    seq.splice(i,1); seq.splice(j,0,name);
+    act({action:'foldorder', order:seq});
+  }
+  function closeFpick(){ var ov=document.getElementById('fOver'); if(ov) ov.classList.remove('show'); }
+  function openFpick(r){   // 「放进文件夹…」：勾选/新建文件夹，一个包可同时进多个
+    var ov=document.getElementById('fOver'), m=document.getElementById('fModal');
+    if(!ov || !m) return;
+    var folders=curFolders(), keys=rowFoldKeys(r), counts=foldCounts(), inNames={};
+    folders.forEach(function(f){ if(folderKeyIn(f, keys)) inNames[f.name]=1; });
+    var list = folders.length
+      ? folders.map(function(f){
+          var ck=inNames[f.name]?' checked':'';
+          return '<label><input type="checkbox" data-f="'+esc(f.name)+'"'+ck+'><span>'+esc(f.name)+'</span><span class="cnt">'+counts[f.name]+' 个</span></label>';
+        }).join('')
+      : '<div class="emp">还没有文件夹：在下面输入一个名字并勾选就会新建。</div>';
+    m.innerHTML='<h3>把「'+esc(r.name)+'」放进文件夹</h3>'
+      +'<div class="steps">可同时选多个文件夹（同一个包能出现在几个文件夹里）。分组只用于整理，不影响总累计和任何时长；不勾选任何文件夹 = 回到「未分组」。</div>'
+      +'<div class="fpick">'+list+'</div>'
+      +'<div class="fnew"><input id="fNewName" placeholder="或输入一个新文件夹名，回车即加入" spellcheck="false"></div>'
+      +'<div class="row">'
+      +'<button id="fSave">确定</button>'
+      +'<button id="fCancel" class="ghost">取消</button>'
+      +'</div>';
+    ov.classList.add('show');
+    var save=function(){
+      var names=[], ins=m.querySelectorAll('input[data-f]:checked'), i;
+      for(i=0;i<ins.length;i++) names.push(ins[i].getAttribute('data-f'));
+      var nn=(document.getElementById('fNewName').value||'').trim();
+      if(nn && names.indexOf(nn)<0) names.push(nn);
+      act({action:'foldset', keys:rowFoldKeys(r), folders:names});
+      closeFpick();
+    };
+    document.getElementById('fSave').addEventListener('click', save);
+    document.getElementById('fCancel').addEventListener('click', closeFpick);
+    var ni=document.getElementById('fNewName');
+    ni.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ save(); } });
+    setTimeout(function(){ ni.focus(); }, 30);
+  }
+
+  function normPath(p){
+    return String(p==null?'':p).replace(/\\/g,'/').replace(/\/+$/,'').toLowerCase();
+  }
+  function findByName(n){
+    for(var i=0;i<state.mods.length;i++){ if(state.mods[i].name===n) return state.mods[i]; }
+    return null;
+  }
+  // 和服务器一样：folder 路径精确匹配优先，其次按名字
+  function findRec(name, folder){
+    if(folder){
+      var np=normPath(folder);
+      for(var i=0;i<state.mods.length;i++){
+        var f=state.mods[i].folder;
+        if(f && normPath(f)===np) return state.mods[i];
+      }
+    }
+    return findByName(name);
+  }
+  // 「计入总榜」判断：某行是否被排除在顶部总累计之外。
+  // 一行可能同时挂两个 key：r:<记录id>（主榜/主页总累计都认它）与 p:<文件夹>（记录删了、
+  // 重建记录也能沿用同一份“不计入”设置），存/删时服务器会一起维护，保证口径一致。
+  function rowTallyKeys(r){
+    var ks=[];
+    if(r && r.rec) ks.push('r:'+r.rec.id);
+    if(r && r.path) ks.push('p:'+normPath(r.path));
+    return ks;
+  }
+  function isRowExcl(r){
+    var ks=rowTallyKeys(r); if(!ks.length) return false;
+    var a=state.excl||[];
+    for(var i=0;i<ks.length;i++){ for(var j=0;j<a.length;j++){ if(a[j]===ks[i]) return true; } }
+    return false;
+  }
+  // 主榜：PCL 里自动找到的整合包，每包一行；再补上列表里没有的手动记录
+  function pathMatchPack(m, p){
+    if(m.folder){ if(normPath(p.path)===normPath(m.folder)) return true; }
+    return p.name===m.name;
+  }
+  function buildRow(p){
+    var rec=findRec(p.name, p.path);
+    var recTot = rec ? totalOf(rec) : 0;
+    var statSec = Number(p.statsSec)||0;
+    return { kind:'pack', pack:p, rec:rec, name:p.name, path:p.path, sec:Math.max(recTot, statSec),
+      statsSec:statSec, worlds:Number(p.statsWorlds)||0, last:p.statsLast||'',
+      auto: !!(state.auto && state.auto.enabled && rec && state.auto.packId===rec.id) };
+  }
+  function rowKeyOf(r){ return r.kind==='rec' ? ('r:'+r.rec.id) : ('p:'+r.path); }
+  function rowsNow(){
+    var out=[];
+    boardPacks.forEach(function(p){ out.push(buildRow(p)); });
+    state.mods.forEach(function(m){
+      var onBoard=false;
+      for(var i=0;i<boardPacks.length;i++){ if(pathMatchPack(m, boardPacks[i])){ onBoard=true; break; } }
+      if(!onBoard){
+        out.push({ kind:'rec', rec:m, name:m.name, path:(m.folder||''), sec:totalOf(m),
+          worlds:0, statsSec:0, last:'',
+          auto: !!(state.auto && state.auto.enabled && state.auto.packId===m.id) });
+      }
+    });
+    return out;
+  }
+  function isRowPlaying(r){ return !!(r.rec && r.rec.start); }
+  function metaText(r){
+    var bits=[];
+    if(r.kind==='rec'){ bits.push('手动记录：不在 PCL 整合包列表里'); }
+    else {
+      if(r.worlds>0) bits.push(r.worlds+' 个存档世界'+(r.statsSec?(' · 存档共 '+fmtHuman(r.statsSec)):''));
+      if(r.last) bits.push('最近玩 '+String(r.last).slice(0,10));
+      if(!r.worlds) bits.push('存档统计暂无——进某个世界玩一次就会记录');
+    }
+    if(r.rec) bits.push('面板计时 '+fmtHuman(totalOf(r.rec))+(r.rec.start?'（含本次）':''));
+    var fl=rowFoldersOf(r);
+    if(fl.length) bits.push('文件夹：'+fl.join('、'));
+    return bits.join('　');
+  }
+  function actionsHTML(r, key){
+    var rec=r.rec, isTarget=r.auto, off=isRowExcl(r), a=[];
+    if(rec && rec.start){ a.push('<button class="stop" data-b="stop">■ 结束计时</button>'); }
+    else if(rec){ a.push('<button class="go" data-b="start">▶ 开始计时</button>'); }
+    else if(r.kind==='pack'){ a.push('<button class="go" data-b="add">＋ 记时长（带进存档历史）</button>'); }
+    if(isTarget){ a.push('<span class="isauto">✓ 自动计时目标</span>'); }
+    else if(r.kind==='pack' || rec){ a.push('<button data-b="auto">设为自动计时目标</button>'); }
+    if(rec){ a.push('<button data-b="adj">± 调整</button>','<button data-b="ren">重命名</button>','<button data-b="del">删除记录</button>'); }
+    // 是否计入顶部“总累计”（总榜）：不计入的那行数字会灰掉划线，行仍保留、随时可改回
+    a.push('<button class="cnt'+(off?' off':'')+'" data-b="cnt" title="'+(off?'当前不计入总榜（上面的总累计不包含这一行）。点它改回计入。':'这一行已计入上面的总累计。点它让这一行不计入总榜（行保留、数字变灰）。')+'">'+(off?'☐ 计入总榜':'☑ 计入总榜')+'</button>');
+    a.push('<button data-b="fold" title="把这个整合包放进一个或多个文件夹里（纯整理归类，不影响任何时长）">📁 放进文件夹…</button>');
+    if(r.kind==='pack'){ a.push('<button data-b="read">查看文件夹内容 ↓</button>'); }
+    var h='<div class="bbtns">'+a.join('')+'</div>';
+    if(rec){
+      h+='<div class="badj'+(bExp['adj:'+key]?' show':'')+'">'
+        +'<div class="c">手动加减分钟（忘记开计时就补记 / 多记了就扣减）：</div>'
+        +'<div class="ch">'
+        +'<button data-b="adjv" data-v="60">+60</button><button data-b="adjv" data-v="30">+30</button>'
+        +'<button data-b="adjv" data-v="10">+10</button><button data-b="adjv" data-v="5">+5</button>'
+        +'<button data-b="adjv" data-v="1">+1</button>'
+        +'<button class="minus" data-b="adjv" data-v="-5">-5</button><button class="minus" data-b="adjv" data-v="-30">-30</button>'
+        +'<button class="minus" data-b="adjv" data-v="custom">自定义…</button>'
+        +'</div></div>';
+    }
+    return h;
+  }
+  function bRowHTML(r){
+    var key=rowKeyOf(r), open=!!bExp[key], off=isRowExcl(r), selOn=!!bSel[key], cust=boardSort==='custom';
+    return '<div class="brow'+(isRowPlaying(r)?' playing':'')+(r.auto?' cur':'')+(off?' no':'')+(selOn?' sel':'')+(open?' open':'')+(cust?' custom':'')+'" data-key="'+esc(key)+'">'
+      +'<div class="bh">'
+      +  '<button class="sel'+(selOn?' on':'')+'" data-b="sel" title="'+(r.rec?'勾选后可批量删除这条计时记录':'这个包是自动找到的，没有计时记录可删，无法勾选')+'"'+(r.rec?'':' disabled')+'></button>'
+      +  '<span class="nm">'+esc(r.name)+(r.kind==='rec'?'<span class="tag"> · 手动</span>':'')+(off?'<span class="tag no"> · 不计入总榜</span>':'')+'</span>'
+      +  (isRowPlaying(r)?'<span class="live">● 计时中</span>':'')
+      +  '<span class="tm">'+fmtHuman(r.sec)+(mcDays(r.sec)>0?'<span class="gday"> · '+mcDays(r.sec)+' 游戏日</span>':'')+'</span>'
+      +  (cust ? '<button class="mv" data-b="up" title="在自定义顺序里上移">▲</button><button class="mv" data-b="down" title="在自定义顺序里下移">▼</button>' : '')
+      +  '<span class="chev">'+(open?'收起 ▴':'详情 ▾')+'</span>'
+      +'</div>'
+      +'<div class="bmeta">'+metaText(r)+'</div>'
+      +'<div class="bopen">'+actionsHTML(r,key)+'</div>'
+      +'</div>';
+  }
+  function recentVal(r){   // 最近玩的时间 → 可比较的字符串；没玩过/手动记录排最下
+    if(r.last && /^\d{4}-\d{2}-\d{2}/.test(String(r.last))) return String(r.last).replace(/[-: ]/g,'');
+    return '000000000000';
+  }
+  function nameInitCompare(a,b){   // 首字母：中文按拼音、英文/数字按字母顺序（回退到字典序）
+    var x=String(a.name||'').trim().toLowerCase(), y=String(b.name||'').trim().toLowerCase();
+    if(x===y) return 0;
+    try{ return x.localeCompare(y,'zh'); }catch(e){ return x<y?-1:1; }
+  }
+  function sortedRows(){
+    var rows=rowsNow();
+    if(boardSort==='custom'){
+      var seq=customSeq(), rank={};
+      for(var i=0;i<seq.length;i++) rank[seq[i]]=i;
+      rows.sort(function(a,b){
+        var ra=rank[rowKeyOf(a)], rb=rank[rowKeyOf(b)];
+        if(ra===undefined) ra=1e9; if(rb===undefined) rb=1e9;
+        return ra-rb;
+      });
+    } else if(boardSort==='recent'){
+      rows.sort(function(a,b){ var x=recentVal(b), y=recentVal(a); return x<y?-1:(x>y?1:0); });
+    } else if(boardSort==='time'){
+      rows.sort(function(a,b){ return b.sec-a.sec; });
+    } else if(boardSort==='alpha'){
+      rows.sort(nameInitCompare);
+    }
+    return rows;
+  }
+  function fsecHTML(name, rows, isUng){   // 一个「文件夹分组」头 + 可折叠的内容区
+    var open=(fOpen[name]!==true), c=rows.length;
+    var h='<div class="fsec'+(isUng?' ug':'')+'">'
+      +'<div class="fhead" data-folder="'+esc(name)+'" title="'+(isUng?'':'点一下收起 / 展开这个文件夹')+'">'
+      +  '<span class="chev">'+(open?'▾':'▸')+'</span>'
+      +  '<span class="fic">'+(isUng?'🗃':'📁')+'</span>'
+      +  '<span class="fn">'+esc(name)+'</span>'
+      +  '<span class="fc">'+c+' 个</span>'
+      +  (isUng?'':'<span class="fops">'
+      +    (folderSort==='custom' ? '<button class="fmv" data-fop="up" title="在自定义顺序里上移">▲</button><button class="fmv" data-fop="down" title="在自定义顺序里下移">▼</button>' : '')
+      +    '<button class="ren" data-fop="ren" title="重命名这个文件夹">✎</button>'
+      +    '<button class="del" data-fop="del" title="删除这个文件夹（只删分组，不动任何包和时长）">✕</button>'
+      +  '</span>')
+      +'</div>';
+    if(open){
+      if(c) h+='<div class="fbody">'+rows.map(bRowHTML).join('')+'</div>';
+      else h+='<div class="fbody empty">（空文件夹：展开任意一行 →「放进文件夹…」就能放进来）</div>';
+    }
+    h+='</div>';
+    return h;
+  }
+  function renderBoard(){
+    var box=document.getElementById('board'); if(!box) return;
+    var rows=sortedRows(), folders=curFolders(), h='';
+    if(!rows.length){ h='<div class="pkempty">正在列出 PCL 里的整合包…（若一直空白，请确认服务已启动并刷新本页）</div>'; }
+    else if(folders.length){
+      // 文件夹排序：创建先后 / 名称（拼音/字母）/ 包数量（多→少）；「未分组」始终垫底
+      var counts = (folderSort==='count') ? foldCounts() : null;
+      var sf=folders.slice().sort(function(a,b){
+        if(folderSort==='custom'){
+          var seq=folderOrderSeq(), rank={};
+          for(var q=0;q<seq.length;q++) rank[seq[q]]=q;
+          var ra=rank[a.name], rb=rank[b.name];
+          if(ra===undefined) ra=1e9; if(rb===undefined) rb=1e9;
+          return ra-rb;
+        }
+        if(folderSort==='name'){ var x=String(a.name||''), y=String(b.name||''); try{ return x.localeCompare(y,'zh'); }catch(e){ return x<y?-1:1; } }
+        if(folderSort==='count'){ return (counts[b.name]||0)-(counts[a.name]||0); }
+        return 0;   // 创建先后：保持原顺序（sort 稳定）
+      });
+      var i, f;
+      for(i=0;i<sf.length;i++){ f=sf[i]; h+=fsecHTML(f.name, rows.filter(function(x){ return folderKeyIn(f, rowFoldKeys(x)); }), false); }
+      var un=rows.filter(function(x){ return !rowInAnyFolder(x); });
+      if(un.length) h+=fsecHTML('未分组', un, true);
+    }
+    else { for(var j=0;j<rows.length;j++) h+=bRowHTML(rows[j]); }
+    box.innerHTML=h;
+    updateSelBar();
+  }
+  function boardSum(){
+    var rows=rowsNow(), t=0, exclN=0;
+    for(var i=0;i<rows.length;i++){ if(isRowExcl(rows[i])) exclN++; else t+=rows[i].sec; }
+    return { sec:t, count:rows.length, excl:exclN };
+  }
+  function currentRowByKey(key){
+    var rows=rowsNow();
+    for(var i=0;i<rows.length;i++){ if(rowKeyOf(rows[i])===key) return rows[i]; }
+    return null;
+  }
+  // 批量删除：选中的“有计时记录”的行
+  function bDelRows(){
+    return rowsNow().filter(function(r){ return r.rec && bSel[rowKeyOf(r)]; });
+  }
+  // 同步工具条：清理已失效勾选（记录被删/行没了），按剩余选中数显示
+  function updateSelBar(){
+    var bar=document.getElementById('bdelBar'); if(!bar) return;
+    var alive={}, rows=rowsNow(), i, r;
+    for(i=0;i<rows.length;i++){ r=rows[i]; if(r.rec && bSel[rowKeyOf(r)]) alive[rowKeyOf(r)]=true; }
+    bSel=alive;
+    var n=0; for(var k in bSel){ if(bSel[k]) n++; }
+    bar.classList.toggle('show', n>0);
+    var cnt=document.getElementById('bdelCnt'); if(cnt) cnt.textContent = n>0 ? ('已选 '+n+' 条记录') : '';
+    var go=document.getElementById('bdelGo'); if(go) go.disabled = n===0;
+  }
+  function fetchBoard(){
+    if(!IS_HTTP) return;
+    fetch('/api/packs').then(function(r){ return r.json(); }).then(function(res){
+      var packs=(res&&res.packs)||[];
+      var sig=JSON.stringify(packs.map(function(x){ return [x.name,x.path,x.statsSec,x.statsWorlds,x.statsLast]; }));
+      var old=JSON.stringify(boardPacks.map(function(x){ return [x.name,x.path,x.statsSec,x.statsWorlds,x.statsLast]; }));
+      boardPacks=packs;
+      if(!boardLoaded){ boardLoaded=true; safeRender(renderAll); }
+      else if(sig!==old){ safeRender(renderAll); }
+    }).catch(function(){});
+  }
+  function packInit(){
+    var sec=document.getElementById('packSec');
+    if(!IS_HTTP){ if(sec) sec.classList.remove('show'); return; }
+    sec.classList.add('show');
+    var lp=(state.ui&&state.ui.lastPack)||'';
+    var inp=document.getElementById('pkPath');
+    if(lp && inp && !pkSeeded){     // 只在第一次打开时预填一次，之后用户清空就不再补回
+      pkSeeded=true;
+      inp.value=lp;
+      if(!pkStarted){ pkStarted=true; doReadPack(lp); }
+    }
+  }
+
+  // ================= 读取整合包文件夹：占用分布 + 各存档时长（不列模组清单，PCL 自带那个） =================
+  function startPackRead(p){
+    pkStarted=true;
+    doReadPack(p);
+  }
+  function doReadPack(p){
+    pkStarted=true;
+    var inp=document.getElementById('pkPath');
+    if(inp && inp.value!==p) inp.value=p;
+    var box=document.getElementById('pkResult');
+    if(box) box.innerHTML='<div class="pkempty">读取中…（要算出各部分占用，较大的包会稍等几秒）</div>';
+    fetch('/api/pack?path='+encodeURIComponent(p)).then(function(r){ return r.json(); }).then(function(res){
+      renderReadResult(res);
+    }).catch(function(){
+      if(box) box.innerHTML='<div class="pkempty">读取失败：服务没连上？请确认服务在运行。</div>';
+    });
+  }
+  function renderReadResult(res){
+    var box=document.getElementById('pkResult'); if(!box) return;
+    if(!res || !res.ok || !res.scan){
+      box.innerHTML='<div class="pkempty">'+esc((res&&res.error)||'读取失败')+'</div>';
+      return;
+    }
+    var s=res.scan, rec=res.rec||null;
+    var act;
+    if(rec){
+      act='<div class="rkacts"><div class="rkdone">✓ 这个文件夹已有一条记录：主榜「<b>'+esc(rec.name)+'</b>」累计 '+fmtHuman(rec.total)+'。回顶部主榜那行即可开始 / 结束计时、± 调整。</div></div>';
+    } else {
+      act='<div class="rkacts">'
+        +'<div class="rkactcap">想把这次读到的时长也记进主榜？</div>'
+        +'<div class="rkactbtns">'
+        +(s.statsSec>0
+          ? '<button data-b="adptime" data-sec="'+s.statsSec+'" title="建一条记录，把存档统计读出的历史时长当起始累计（等同主榜的「记时长」）">＋ 把读到的 '+fmtHuman(s.statsSec)+' 带进主榜</button>'
+          : '<button data-b="adptime" disabled title="存档统计里还没有时长，先进某个世界玩一会儿会自动记上">存档里还没有时长可带</button>')
+        +'<button data-b="adpnew" class="alt" title="不读历史时长，从 0 开始，之后手动「开始 / 结束计时」">＋ 从 0 开始累计（手动计时）</button>'
+        +'</div></div>';
+    }
+    var h='<div class="pkr">'
+      +'<div class="rkname">'+esc(s.name)+'</div>'
+      +'<div class="rkm">'+esc(s.path)+(s.mtime?('　·　最近改动 '+esc(s.mtime)):'')+'</div>'
+      +act
+      +'<div class="rkcap">在这个包里玩过多久（存档统计）</div>'
+      +'<div class="rkstat">'+(s.statsWorlds>0
+          ? '共 <b>'+esc(fmtHuman(s.statsSec))+'</b>，来自 '+s.statsWorlds+' 个存档世界'+(s.statsLast?('，最近玩 '+esc(String(s.statsLast).slice(0,10))):'')
+          : '存档统计里还没有游玩时长——进某个世界玩一会儿就会自动记上。')+'</div>'
+      +'<div class="rkcap">文件夹里各部分占多大</div>'
+      +'<div class="rkrows">';
+    var top=s.topSizes||[], max=1, i;
+    for(i=0;i<top.length;i++){ if(top[i].bytes>max) max=top[i].bytes; }
+    for(i=0;i<top.length;i++){
+      var t=top[i], pct=Math.max(2, Math.round(t.bytes/max*100));
+      h+='<div class="rkrow"><span class="n" title="'+esc(t.name)+'">'+esc(t.name)+(t.isDir?'/':'')+'</span>'
+        +'<span class="bar"><i style="width:'+pct+'%"></i></span>'
+        +'<span class="v">'+fmtBytes(t.bytes)+'</span></div>';
+    }
+    if(!top.length) h+='<div class="rkempty">这个文件夹是空的。</div>';
+    h+='</div>'
+      +'<div class="rkcap">总占用　<span class="tot">'+fmtBytes(s.totalBytes)+'</span></div>'
+      +'<div class="rkcap">每个存档世界玩了多久、占多大</div>';
+    var ws=s.worlds||[];
+    if(ws.length){
+      h+='<div class="rkworlds">';
+      for(i=0;i<ws.length;i++){
+        var w=ws[i];
+        h+='<div class="rkworld">'
+          +'<div class="l1"><span class="n" title="'+esc(w.name)+'">'+esc(w.name)+'</span>'
+          +'<span class="tm">'+(w.hasStats?fmtHuman(w.sec):'—')+'</span></div>'
+          +'<div class="l2">占用 '+fmtBytes(w.bytes)
+          +(w.hasStats ? (w.last?('　·　最近玩 '+esc(String(w.last).slice(0,10))):'') : '　·　还没进去玩过')
+          +'</div></div>';
+      }
+      h+='</div>';
+    } else {
+      h+='<div class="rkempty">这个整合包还没有存档(世界)文件夹。</div>';
+    }
+    h+='</div>';
+    box.innerHTML=h;
+    if(s.path) act({action:'rememberpack', path:s.path});
+  }
+
+  // ---- 事件：背景 ----
+  var bgPickBtn=document.getElementById('bgPick');
+  if(bgPickBtn) bgPickBtn.addEventListener('click', function(){ document.getElementById('bgFile').click(); });
+  var bgFileInput=document.getElementById('bgFile');
+  if(bgFileInput) bgFileInput.addEventListener('change', bgUpload);
+  var bgClearBtn=document.getElementById('bgClear');
+  if(bgClearBtn) bgClearBtn.addEventListener('click', function(){ if(confirm('移除面板背景图？')) act({action:'setbg', bg:null}); });
+  var bgDimSlider=document.getElementById('bgDim');
+  if(bgDimSlider){
+    bgDimSlider.addEventListener('input', function(){ bgDragging=true; previewDim(parseInt(this.value,10)||0); });
+    bgDimSlider.addEventListener('change', function(){ bgDragging=false; act({action:'setdim', dim:parseInt(this.value,10)||0}); });
+  }
+
+  // ---- 事件：个性化（文字颜色 / 强调色 / 毛玻璃透明度 / 图标样式） ----
+  var inkPick=document.getElementById('inkPick');
+  if(inkPick) inkPick.addEventListener('input', function(){ act({action:'setui', ink:this.value}); });
+  var accentPick=document.getElementById('accentPick');
+  if(accentPick) accentPick.addEventListener('input', function(){ act({action:'setui', accent:this.value}); });
+  var glassRange=document.getElementById('glassRange');
+  if(glassRange) glassRange.addEventListener('input', function(){ act({action:'setui', glass:parseInt(this.value,10)||0}); });
+  document.querySelectorAll('.pdef').forEach(function(b){
+    b.addEventListener('click', function(){
+      var k=b.getAttribute('data-def'), p={action:'setui'};
+      if(k==='ink') p.ink='#eef2f7';
+      else if(k==='accent') p.accent='#44c7d6';
+      act(p);
+    });
+  });
+  document.querySelectorAll('.segbtn').forEach(function(b){
+    b.addEventListener('click', function(){ act({action:'setui', icons:b.getAttribute('data-icons')}); });
+  });
+
+  // ---- 事件：读取整合包文件夹 ----
+  var pkReadBtn=document.getElementById('pkRead');
+  if(pkReadBtn) pkReadBtn.addEventListener('click', function(){
+    var v=(document.getElementById('pkPath').value||'').trim();
+    if(v) startPackRead(v); else alert('先填一个文件夹路径，例如 E:\\mc\\整合包\\versions\\终末幸存者。');
+  });
+  var pkPathInput=document.getElementById('pkPath');
+  if(pkPathInput) pkPathInput.addEventListener('keydown', function(e){
+    if(e.key==='Enter'){ var v=(this.value||'').trim(); if(v) startPackRead(v); }
+  });
+
+  // ---- 自动扫描全盘找存档：全盘找出带 saves 的 Minecraft 目录，点一个直接读取 ----
+  var pkScannedOnce=false;
+  function scanStat(txt){ var el=document.getElementById('pkScanStat'); if(el) el.textContent=txt; }
+  function scanDisk(force){
+    if(!IS_HTTP){ scanStat('需要先连接服务：从 PCL 主页点「一键启动服务」后刷新本页。'); return; }
+    var btn=document.getElementById('pkScan'), box=document.getElementById('pkScanRes');
+    if(btn){ btn.disabled=true; btn.textContent='正在扫描全盘…'; }
+    scanStat('扫描中…会遍历本机每个磁盘找带存档的目录，第一次可能要几十秒（可先切走看别的）。');
+    if(box) box.innerHTML='';
+    fetch('/api/scan'+(force?'?force=1':'')).then(function(r){ return r.json(); }).then(function(res){
+      if(btn){ btn.disabled=false; btn.textContent='🔍 自动扫描全盘找存档'; }
+      if(!res || !res.ok){ scanStat('扫描失败：' + ((res&&res.error)||'未知错误')); return; }
+      var hits=res.hits||[], drives=(res.drives||[]).join('、')||'本机';
+      if(!hits.length){
+        scanStat('扫了 '+drives+'（遍历 '+((res.scanned||0)/1000).toFixed(1)+'k 个目录），没有找到带 level.dat 的存档。');
+        return;
+      }
+      var suf='（列出前 '+hits.length+' 个，按总游玩时长从大到小）'
+        + ((res.ms?(' · 用时 '+Math.round(res.ms/100)/10+' 秒'):''))
+        + (res.partial?' · 目录太多提前收尾，可能不全，可再点一次强制重扫':'');
+      scanStat('共找到 '+res.total+' 个带存档的目录，扫了 '+drives+suf+'：');
+      if(box){
+        box.innerHTML = hits.map(function(it){
+          var has = (it.sec||0) > 0;
+          return '<div class="scrow" data-path="'+esc(it.path)+'" title="'+esc(it.path)+'">'
+            +'<span class="scn">'+esc(it.name)+'</span>'
+            +'<span class="scs">'+(it.worlds?it.worlds+' 个存档':'')
+            +(it.sec>0?(' · 共 '+compactH(it.sec)):'')
+            +(it.last?(' · 最近 '+esc(String(it.last).slice(0,10))):'')+'</span>'
+            +'<span class="scm">'+esc(it.path)+'</span>'
+            +'<button class="scadd" data-path="'+esc(it.path)+'" data-name="'+esc(it.name)+'" data-sec="'+(it.sec||0)+'"'
+            +(has
+              ? ' title="把扫到的 '+compactH(it.sec)+' 一键加进主榜（这个文件夹若已有记录就不会重复加）">＋ 加入总榜'
+              : ' disabled title="这里还没有游玩时长（0 秒），点这一行先进去看看">暂无时长')+'</button>'
+            +'</div>';
+        }).join('');
+      }
+    }).catch(function(){
+      if(btn){ btn.disabled=false; btn.textContent='🔍 自动扫描全盘找存档'; }
+      scanStat('扫描失败：连不上服务？请确认服务在运行。');
+    });
+  }
+  var pkScanBtn=document.getElementById('pkScan');
+  if(pkScanBtn) pkScanBtn.addEventListener('click', function(){ scanDisk(pkScannedOnce); pkScannedOnce=true; });
+  var pkScanResBox=document.getElementById('pkScanRes');
+  if(pkScanResBox) pkScanResBox.addEventListener('click', function(e){
+    var addb=e.target.closest('button.scadd');
+    if(addb){
+      if(addb.disabled) return;
+      var sec=Math.max(0, parseInt(addb.getAttribute('data-sec'),10)||0);
+      addb.disabled=true; addb.textContent='…';
+      act({action:'add', name:addb.getAttribute('data-name')||'', folder:addb.getAttribute('data-path')||'', seconds:sec}).then(function(res){
+        if(!res){ addb.disabled=false; addb.textContent='失败'; }
+        else if(res.dup){ addb.textContent='已在主榜'; scanStat('「'+(addb.getAttribute('data-name')||'')+'」本来就在主榜里了，没有重复添加。'); }
+        else { addb.textContent='✓ 已加入'; scanStat('✓ 已把「'+(addb.getAttribute('data-name')||'')+'」的 '+fmtHuman(sec)+' 加入主榜，总累计已更新（回顶部主榜那行可开始 / 结束计时）。'); }
+      });
+      return;
+    }
+    var row=e.target.closest('.scrow'); if(!row) return;
+    var p=row.getAttribute('data-path');
+    if(p){ startPackRead(p); scanStat('正在读取「'+p+'」…（各部分占用 + 每个存档时长在下面）'); }
+  });
+
+  // ---- 读取结果里的动作：把读到的时长带进主榜 / 从 0 开始累计 ----
+  function pathNiceName(p){
+    var parts=String(p||'').split(/[\\/]+/).filter(function(x){ return x && x!=='.' && x!=='..'; });
+    var n=parts.pop()||'';
+    if(n==='.minecraft') n=parts.pop()||'.minecraft';   // 一个叫 .minecraft 的目录，名字取它上一层
+    return n;
+  }
+  var pkResultBox=document.getElementById('pkResult');
+  if(pkResultBox) pkResultBox.addEventListener('click', function(e){
+    var b=e.target.closest('button[data-b]'); if(!b) return;
+    var kind=b.getAttribute('data-b');
+    if(kind!=='adptime' && kind!=='adpnew') return;
+    var path=(document.getElementById('pkPath').value||'').trim();
+    if(!path){ alert('缺少文件夹路径。'); return; }
+    var sec=Math.max(0, parseInt(b.getAttribute('data-sec'),10)||0);
+    var acts=b.closest('.rkacts');
+    if(acts) acts.innerHTML='<div class="rkflash">正在添加…</div>';
+    act({action:'add', name:pathNiceName(path), folder:path, seconds:sec}).then(function(res){
+      var aa=document.getElementById('pkResult');
+      var q=aa?aa.querySelector('.rkacts'):null;
+      if(!res){ if(q) q.innerHTML='<div class="rkflash">添加失败：连不上服务？请确认服务在运行。</div>'; return; }
+      if(q){
+        if(res.dup) q.innerHTML='<div class="rkflash">这个文件夹已在主榜里有记录了（服务为避免重复没再加第二条），回顶部主榜那行就能开始 / 结束计时。</div>';
+        else q.innerHTML='<div class="rkflash">✓ 已加进主榜：「'+esc(pathNiceName(path))+'」，累计 '+fmtHuman(sec)+'（存档历史当起始）。回顶部主榜即可开始 / 结束计时，总累计已包含它。</div>';
+      }
+    });
+  });
+
+  // ---- 事件：各整合包游玩时间（主榜） ----
+  var boardBox=document.getElementById('board');
+  if(boardBox){
+    boardBox.addEventListener('click', function(e){
+      var fhead=e.target.closest('.fhead');       // 先看是不是文件夹分组头
+      if(fhead){
+        var fop=e.target.closest('[data-fop]');
+        var fname=fhead.getAttribute('data-folder');
+        if(fop){
+          var op=fop.getAttribute('data-fop');
+          if(op==='ren'){ var nn=prompt('重命名这个文件夹：', fname); if(nn!==null && nn.trim()!=='') act({action:'renfolder', name:fname, to:nn.trim()}); }
+          else if(op==='del'){ if(confirm('删除文件夹「'+fname+'」？只删这个分组，不会动里面任何整合包和时长（它们回到「未分组」）。')) act({action:'delfolder', name:fname}); }
+          else if(op==='up'||op==='down'){ folderMove(fname, op==='up'?-1:1); }
+          return;
+        }
+        if(fOpen[fname]===true) fOpen[fname]=false; else fOpen[fname]=true;
+        renderBoard();
+        return;
+      }
+      var rowEl=e.target.closest('.brow'); if(!rowEl) return;
+      var key=rowEl.getAttribute('data-key'); if(!key) return;
+      var but=e.target.closest('button');
+      if(!but){
+        var head=e.target.closest('.bh');
+        if(!head) return;             // 只点行头才展开/收起
+        bExp[key]=!bExp[key];
+        renderBoard();
+        return;
+      }
+      var r=currentRowByKey(key); if(!r) return;
+      var b=but.getAttribute('data-b'), rec=r.rec;
+      if(b==='adj'){ bExp['adj:'+key]=!bExp['adj:'+key]; renderBoard(); }
+      else if(b==='adjv'){
+        if(rec){
+          var v=but.getAttribute('data-v');
+          if(v==='custom'){
+            var inp=prompt('输入要加减的分钟数（补记填正数，扣减填负数）：','30');
+            if(inp!==null && inp.trim()!==''){ var n=parseInt(inp,10); if(!isNaN(n)) act({action:'adjust', id:rec.id, seconds:n*60}); else alert('请输入数字。'); }
+          } else act({action:'adjust', id:rec.id, seconds:parseInt(v,10)*60});
+        }
+      }
+      else if(b==='add'){   // 记时长：把存档历史当起始累计
+        act({action:'add', name:r.name, folder:r.path, seconds:(r.worlds>0)?r.statsSec:0});
+        bExp[key]=true;
+      }
+      else if(b==='start'){ if(rec && !rec.start) act({action:'start', id:rec.id}); }
+      else if(b==='stop'){ if(rec && rec.start) act({action:'stop', id:rec.id}); }
+      else if(b==='auto'){
+        var setTo=function(mm){ if(mm) act({action:'setauto', enabled:true, packId:mm.id}); };
+        if(rec){ setTo(rec); }
+        else if(r.kind==='pack'){   // 还没记录：先按存档历史建一条，再设为自动目标
+          act({action:'add', name:r.name, folder:r.path, seconds:(r.worlds>0)?r.statsSec:0})
+            .then(function(st){ if(st){ var mm=null; for(var i=0;i<st.mods.length;i++){ if(st.mods[i].folder && normPath(st.mods[i].folder)===normPath(r.path)) mm=st.mods[i]; } setTo(mm||findRec(r.name,r.path)); } });
+        }
+      }
+      else if(b==='ren'){ if(rec){ var nn=prompt('重命名这个整合包：', rec.name); if(nn!==null && nn.trim()!=='') act({action:'rename', id:rec.id, name:nn.trim()}); } }
+      else if(b==='del'){ if(rec && confirm('删除「'+rec.name+'」的计时记录？它的累计会一起删除（不影响你的存档文件）。')) act({action:'del', id:rec.id}); }
+      else if(b==='cnt'){ act({action:'setcount', keys:rowTallyKeys(r), on:isRowExcl(r)}); }
+      else if(b==='sel'){ if(rec){ bSel[key]=!bSel[key]; renderBoard(); } }
+      else if(b==='fold'){ openFpick(r); }
+      else if(b==='up'||b==='down'){ customMove(key, b==='up'?-1:1); }
+      else if(b==='read'){ startPackRead(r.path); var ps=document.getElementById('packSec'); if(ps) ps.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  }
+
+  var boardSortSel=document.getElementById('boardSort');
+  if(boardSortSel) boardSortSel.addEventListener('change', function(){ boardSort=this.value; renderBoard(); });
+
+  var folderSortSel=document.getElementById('folderSort');
+  if(folderSortSel) folderSortSel.addEventListener('change', function(){ folderSort=this.value; renderBoard(); });
+
+  // ---- 「＋ 新建文件夹」+ 放进文件夹弹层的关闭 ----
+  var fAddBtn=document.getElementById('fAdd');
+  if(fAddBtn) fAddBtn.addEventListener('click', function(){
+    var inp=prompt('新文件夹名（之后展开某包点「放进文件夹…」放进去；可随时改名 / 删除）：','');
+    if(inp===null) return;
+    var nm=inp.trim(); if(!nm) return;
+    act({action:'addfolder', name:nm});
+  });
+  var fOverBox=document.getElementById('fOver');
+  if(fOverBox) fOverBox.addEventListener('click', function(e){ if(e.target===fOverBox) closeFpick(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeFpick(); });
+
+  // ---- 批量删除记录：勾选的行一次性删掉各自的计时记录 ----
+  var bdelGo=document.getElementById('bdelGo');
+  if(bdelGo) bdelGo.addEventListener('click', function(){
+    var ts=bDelRows();
+    if(!ts.length){ alert('先在下面每行左边的方框里勾选要删除的计时记录。'); return; }
+    var names=[];
+    for(var i=0;i<ts.length;i++) names.push('「'+ts[i].name+'」');
+    if(!confirm('要删除这 '+ts.length+' 条计时记录？它们各自的累计会一起删除（不影响你的存档文件）。\n\n'+names.join(' '))) return;
+    bSel={};
+    updateSelBar();
+    (function next(i){
+      if(i>=ts.length){ renderAll(); return; }
+      act({action:'del', id:ts[i].rec.id}).then(function(res){
+        if(!res){ alert('删除中断：连不上服务？没删完的记录请刷新后再试。'); return; }
+        next(i+1);
+      });
+    })(0);
+  });
+  var bdelClr=document.getElementById('bdelClr');
+  if(bdelClr) bdelClr.addEventListener('click', function(){ bSel={}; renderBoard(); });
+
+  // ---- 左侧直达栏目：一键跳到各个板块（总累计 / 主榜 / 日历 / 读取 / 背景） ----
+  var qnavBox=document.getElementById('qnav');
+  if(qnavBox){
+    if(!IS_HTTP){ qnavBox.style.display='none'; }
+    else {
+      var qs=[
+        { sel:'.hero',     ic:'⌂', t:'总累计' },
+        { sel:'#autoBox',  ic:'⏱', t:'自动计时' },
+        { sel:'#mods',     ic:'≡', t:'主榜' },
+        { sel:'.days',     ic:'🗓', t:'日历' },
+        { sel:'#packSec',  ic:'📂', t:'读取' },
+        { sel:'#lookBar',  ic:'🎨', t:'个性化' }
+      ];
+      qs.forEach(function(q){
+        var b=document.createElement('button');
+        b.className='qn'; b.type='button'; b.innerHTML='<span class="ic">'+q.ic+'</span><span>'+q.t+'</span>';
+        b.addEventListener('click', function(){
+          var el=document.querySelector(q.sel);
+          if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+        });
+        qnavBox.appendChild(b);
+        q._b=b;
+      });
+      function navSpy(){
+        var mark=null;
+        for(var i=0;i<qs.length;i++){
+          var el=document.querySelector(qs[i].sel);
+          if(!el){ qs[i]._b.classList.remove('on'); continue; }
+          var off=(el.offsetParent===null)||getComputedStyle(el).display==='none';
+          if(off){ qs[i]._b.classList.remove('on'); continue; }
+          if(el.getBoundingClientRect().top<=150) mark=qs[i];
+        }
+        for(var j=0;j<qs.length;j++) qs[j]._b.classList.toggle('on', qs[j]===mark);
+      }
+      window.addEventListener('scroll', navSpy, { passive:true });
+      setInterval(navSpy, 400);
+      navSpy();
+    }
+  }
+
+  fetchBoard();
+  setInterval(fetchBoard, 15000);
+
+  // ---- 服务轮询 ----
+  if(IS_HTTP){
+    function refresh(){
+      fetch('/api/data').then(function(r){ return r.json(); }).then(function(res){
+        if(res && res.ok && res.state){
+          connLost=false;
+          var j=JSON.stringify(res.state);
+          if(j!==JSON.stringify(state)){ state=res.state; safeRender(renderAll); }
+          refreshBars();
+        }
+      }).catch(function(){ connLost=true; refreshBars(); });
+    }
+    refresh();
+    setInterval(refresh, 2500);
+  }
+  refreshBars();
+
+  setInterval(function(){ safeRender(renderAll); }, 500);
+  safeRender(renderAll);
+})();
+</script>
+</body>
+</html>
